@@ -20,3 +20,14 @@ own devices. This includes (but is not limited to):
 	* Balanced loot
 	* Etc.
 * Track raid statistics for later review and analysis
+
+## Initial Setup
+*Todo*
+
+## Usage
+*Todo*
+
+## Changelog
+* v0.0.1a
+	* Initial release.
+	* Works well on my machine but untested on other machines/setups
