@@ -33,7 +33,7 @@ myArmy = {
 
 minGoldToAttack = 50000
 minElixirToAttack = 100000
-minDeToAttack = 0
+minDeToAttack = 1    # By setting this to more than 0 we avoid attacking low level bases...
 
 
 
@@ -42,11 +42,13 @@ def attack():
         return False
     
     for i in range(0, 5):
-        if (isGoodOpponent() == True):
-            deployTroops()
-            finishBattleAndGoHome()
-            trainTroops(myArmy)
-            break
+        if isGoodOpponent() == True:
+            if deployTroops() == True:
+                finishBattleAndGoHome()
+                trainTroops(myArmy)
+                return True
+            else:
+                return False
         else:
             if nextOpponent() == False:
                 return False
@@ -65,7 +67,7 @@ def startAttacking():
         if (cocWindow.exists("1420258722056.png")):
             cocWindow.find("1420258740243.png").click()
 
-        cocWindow.wait("1420258809432.png", FOREVER)
+        cocWindow.wait("1420258809432.png", 30)
         return True
     except:
         print "Error starting the attack process"
@@ -75,7 +77,7 @@ def startAttacking():
 
 def nextOpponent():
     cocWindow.find("1420259749784.png").click()
-    wait("1420258809432.png", FOREVER)
+    cocWindow.wait("1420258809432.png", 30)
     return True
 
 
@@ -128,14 +130,99 @@ def deployTroops():
     # -- Record (somewhere) the match results for future analysis and review
     # - Return True when returned to village, False on exception
     print "Deploying troops!"
-
-    #
-    #
-    # TODO: TODO TODO TODO TODO TODO
-    #
-    #
     
-    return
+    try:
+        landmark = cocWindow.find("attack_landmark.png")
+    except:
+        print "[!] Could not find attack landmark. Aborting attack."
+        cocWindow.find("1420258809432.png").click()
+
+    print landmark.getX(), landmark.getY()
+        
+    deployPoints = []
+    deployPoints.append(Location((landmark.getX() - 70), (landmark.getY() + 250)))
+    deployPoints.append(Location((landmark.getX() - 40), (landmark.getY() + 210)))
+    deployPoints.append(Location((landmark.getX() + 18), (landmark.getY() + 165)))
+    deployPoints.append(Location((landmark.getX() + 70), (landmark.getY() + 125)))
+    deployPoints.append(Location((landmark.getX() + 130), (landmark.getY() + 75)))
+    deployPoints.append(Location((landmark.getX() + 175), (landmark.getY() + 45)))
+    deployPoints.append(Location((landmark.getX() + 225), (landmark.getY() + 10)))
+    deployPoints.append(Location((landmark.getX() + 265), (landmark.getY() - 20)))
+    deployPoints.append(Location((landmark.getX() + 320), (landmark.getY() - 64)))
+    deployPoints.append(Location((landmark.getX() - 30), (landmark.getY() + 420)))
+
+    Settings.MoveMouseDelay = 0.01
+    
+    #for i in deployPoints:
+    #    mouseMove(i)
+
+    try:
+        troops_barbarians     = cocWindow.find("troops_barbarians.png")
+        troops_archers        = cocWindow.find("troops_archers.png")
+        troops_wallbreakers   = cocWindow.find("troops_wallbreakers.png")
+        troops_clancastle     = cocWindow.find("troops_clancastle.png")
+        troops_barbking       = cocWindow.find("troops_barbking.png")
+        troops_healspell      = cocWindow.find("troops_healspell.png")
+    except:
+        print "Failed to find one of the troops we are using in our attack..."
+    
+    # Deploy the barbarians first
+    if troops_barbarians != False:
+        troops_barbarians.click()
+
+        loc = 0
+        for i in range(0, myArmy['barbarian']):
+            if loc >= 9:
+                loc = 0
+                
+            cocWindow.click(deployPoints[loc])
+            loc += 1
+            
+        
+
+    # Then deploy the archers
+    if troops_archers != False:
+        troops_archers.click()
+
+        loc = 0
+        for i in range(0, myArmy['archer']):
+            if loc >= 9:
+                loc = 0
+                
+            cocWindow.click(deployPoints[loc])
+            loc += 1
+
+    # Then the wallbreakers
+    if troops_wallbreakers != False:
+        troops_wallbreakers.click()
+
+        loc = 0
+        for i in range(0, (myArmy['wallbreaker'] / 2)):
+            if loc >= 9:
+                loc = 0
+                
+            cocWindow.click(deployPoints[loc])
+            cocWindow.click(deployPoints[loc])
+            loc += 1
+
+    # Then the Barb King if available
+    if troops_barbking != False:
+        troops_barbking.click()
+        cocWindow.click(deployPoints[9])
+        sleep(2)
+        # Rage the barb king 2 seconds after delpoy
+        troops_barbking.click()
+
+    # Then clan castle troops if available
+    if troops_clancastle != False:
+        troops_clancastle.click()
+        cocWindow.click(deployPoints[9])
+
+    print "Done deploying troops. Everything except spells should have been used."
+
+    Settings.MoveMouseDelay = 0.5
+    
+    return True
 
 
 
@@ -144,7 +231,7 @@ def finishBattleAndGoHome():
     #       and record them for later analysis and review
     cocWindow.wait("1420266239930.png", FOREVER)
     cocWindow.getLastMatch().click()
-    sleep(2)
+    sleep(10)
     
     return True
 
@@ -289,13 +376,12 @@ def donateTroops():
             donate.click()
             sleep(1)
             donateDialog = Region((donate.x + 88), (donate.y - 175), 765, 435)
-            Settings.MoveMouseDelay = 0.05
+            Settings.MoveMouseDelay = 0
             
             while donateDialog.exists(Pattern("1420238079816.png").similar(0.90), 0):
                 donateDialog.getLastMatch().click()
                 donations += 1
                 updateTimestamp('_lastInteraction')
-                
                 sleep(0.25)
                 
             Settings.MoveMouseDelay = 0.5
@@ -373,7 +459,7 @@ def removeObstacles():
 
 def observeVillageStats():
     # Routine to collect/OCR village stats
-    # And return then in an array/dictionary...
+    # And return them in an array/dictionary...
     pass
 
 
@@ -531,6 +617,12 @@ def numberOCR(Reg, ocrType):
     # trainTroops(myArmy)
 
 # collectResources()
+# sleep(1)
 # donateTroops()
 # attack()
+# trainTroops(myArmy)
+
+# attack()
+# deployTroops()
+# finishBattleAndGoHome()
 # trainTroops(myArmy)
