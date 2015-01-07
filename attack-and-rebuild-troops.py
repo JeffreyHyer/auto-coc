@@ -1,5 +1,6 @@
 from datetime import datetime
 from math import *
+from random import *
 
 #cocWindow = False
 
@@ -24,16 +25,17 @@ myArmy = {
     'giant':         0,
     'goblin':        0,
     'wallbreaker':   10,
-    'balloons':      0,
-    'wizards':       0,
-    'healers':       0,
-    'dragons':       0,
-    'pekkas':        0
+    'balloon':      0,
+    'wizard':       0,
+    'healer':       0,
+    'dragon':       0,
+    'pekka':        0
 }
 
-minGoldToAttack = 50000
-minElixirToAttack = 100000
-minDeToAttack = 1    # By setting this to more than 0 we avoid attacking low level bases...
+# TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
+minGoldToAttack = 30000
+minElixirToAttack = 75000
+# minDeToAttack = 0
 
 
 
@@ -41,11 +43,10 @@ def attack():
     if startAttacking() == False:
         return False
     
-    for i in range(0, 5):
+    for i in range(0, 20):
         if isGoodOpponent() == True:
             if deployTroops() == True:
                 finishBattleAndGoHome()
-                trainTroops(myArmy)
                 return True
             else:
                 return False
@@ -77,33 +78,33 @@ def startAttacking():
 
 def nextOpponent():
     cocWindow.find("1420259749784.png").click()
+    sleep(3)
     cocWindow.wait("1420258809432.png", 30)
+    sleep(3)
+    
     return True
 
 
 
 def isGoodOpponent():
-    # Routine to find a viable opponent
-    # to attack.
-    # - Use OCR to determine acceptable loot (configurable)
-    # - Return True when acceptable opponent has been found
+    ## TODO: Test for high level TH/defense/walls/etc
     try:
         goldRegion        = Region((cocWindow.x + 67), (cocWindow.y + 112), 135, 28)
         elixirRegion      = Region((cocWindow.x + 64), (cocWindow.y + 149), 135, 28)
-        deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
+        # deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
     
         gold = numberOCR(goldRegion, 'opponentLoot')
         elixir = numberOCR(elixirRegion, 'opponentLoot')
-        de = numberOCR(deRegion, 'opponentLoot')
+        # de = numberOCR(deRegion, 'opponentLoot')
     
         print "Gold: ", gold
         print "Elixir: ", elixir
-        print "Dark Elixir: ", de
+        # print "Dark Elixir: ", de
 
         if gold >= minGoldToAttack:
             if elixir >= minElixirToAttack:
-                if de >= minDeToAttack:
-                    return True
+                #if de >= minDeToAttack:
+                return True
 
         return False
     except:
@@ -115,110 +116,155 @@ def isGoodOpponent():
 
 
 def deployTroops():
-    # Routine to deploy troops after an acceptable
-    # opponent has been found.
-    #
-    # - Deploy barbarians first on two sides of village
-    # - Deploy archers next on two sides of village
-    # - Deploy barb king and rage immediately (if in inventory)
-    # - Deploy wall breakers in sets of two on both sides of village
-    # - Deploy clan castle troops (if in inventory) on random side
-    #
-    # - Watch for end of match screen
-    # -- OCR the loot gained
-    # -- Determine win/loss
-    # -- Record (somewhere) the match results for future analysis and review
-    # - Return True when returned to village, False on exception
-    print "Deploying troops!"
+    # TODO: Check for full-ish collectors and deploy troops differently if they exist (around all edges)
+    
+    print "[+] Deploying troops"
     
     try:
-        landmark = cocWindow.find("attack_landmark.png")
+        # landmark = cocWindow.find("attack_landmark.png")
+        landmark = cocWindow.find("attack_landmark2.png")
+        landmark.highlight(1)
+        
+        Settings.DelayAfterDrag = 0
+        Settings.DelayBeforeDrop = 0.1
+        Settings.MoveMouseDelay = 0.2
+        dragDrop(landmark.getCenter(), Location(cocWindow.x + 68, cocWindow.y + 462))
+        Settings.DelayAfterDrag = 0.3
+        Settings.DelayAfterDrop = 0.3
+        Settings.MoveMouseDelay = 0.5
+
+        landmark = cocWindow.find("attack_landmark2.png")
+        landmark.highlight(1)
+        
     except:
         print "[!] Could not find attack landmark. Aborting attack."
         cocWindow.find("1420258809432.png").click()
-
-    print landmark.getX(), landmark.getY()
+        return False
         
     deployPoints = []
-    deployPoints.append(Location((landmark.getX() - 70), (landmark.getY() + 250)))
-    deployPoints.append(Location((landmark.getX() - 40), (landmark.getY() + 210)))
-    deployPoints.append(Location((landmark.getX() + 18), (landmark.getY() + 165)))
-    deployPoints.append(Location((landmark.getX() + 70), (landmark.getY() + 125)))
-    deployPoints.append(Location((landmark.getX() + 130), (landmark.getY() + 75)))
-    deployPoints.append(Location((landmark.getX() + 175), (landmark.getY() + 45)))
-    deployPoints.append(Location((landmark.getX() + 225), (landmark.getY() + 10)))
-    deployPoints.append(Location((landmark.getX() + 265), (landmark.getY() - 20)))
-    deployPoints.append(Location((landmark.getX() + 320), (landmark.getY() - 64)))
-    deployPoints.append(Location((landmark.getX() - 30), (landmark.getY() + 420)))
+    # deployPoints.append(Location((landmark.getX() - 70), (landmark.getY() + 250)))
+    # deployPoints.append(Location((landmark.getX() - 40), (landmark.getY() + 210)))
+    # deployPoints.append(Location((landmark.getX() + 18), (landmark.getY() + 165)))
+    # deployPoints.append(Location((landmark.getX() + 70), (landmark.getY() + 125)))
+    # deployPoints.append(Location((landmark.getX() + 130), (landmark.getY() + 75)))
+    # deployPoints.append(Location((landmark.getX() + 175), (landmark.getY() + 45)))
+    # deployPoints.append(Location((landmark.getX() + 225), (landmark.getY() + 10)))
+    # deployPoints.append(Location((landmark.getX() + 265), (landmark.getY() - 20)))
+    # deployPoints.append(Location((landmark.getX() + 320), (landmark.getY() - 64)))
+    # deployPoints.append(Location((landmark.getX() - 30), (landmark.getY() + 420)))
 
-    Settings.MoveMouseDelay = 0.01
+    deployPoints.append(Location((landmark.getX() + 334), (landmark.getY() + 146)))
+    deployPoints.append(Location((landmark.getX() + 286), (landmark.getY() + 113)))
+    deployPoints.append(Location((landmark.getX() + 237), (landmark.getY() + 78)))
+    deployPoints.append(Location((landmark.getX() + 200), (landmark.getY() + 47)))
+    deployPoints.append(Location((landmark.getX() + 148), (landmark.getY() + 14)))
+    deployPoints.append(Location((landmark.getX() + 110), (landmark.getY() - 20)))
+    deployPoints.append(Location((landmark.getX() + 40), (landmark.getY() - 80)))
+    deployPoints.append(Location((landmark.getX() + 104), (landmark.getY() - 130)))
+    deployPoints.append(Location((landmark.getX() + 160), (landmark.getY() - 169)))
+    deployPoints.append(Location((landmark.getX() + 201), (landmark.getY() - 204)))
+    deployPoints.append(Location((landmark.getX() + 260), (landmark.getY() - 248)))
+    deployPoints.append(Location((landmark.getX() + 315), (landmark.getY() - 290)))
+    deployPoints.append(Location((landmark.getX() + 360), (landmark.getY() - 325)))
+    deployPoints.append(Location((landmark.getX() + 425), (landmark.getY() - 372)))
+
+ #   deployPoints.append(Location((landmark.getX() + 1000), (landmark.getY() + 241)))
+ #   deployPoints.append(Location((landmark.getX() + 1057), (landmark.getY() + 197)))
+ #   deployPoints.append(Location((landmark.getX() + 1130), (landmark.getY() + 138)))
+ #   deployPoints.append(Location((landmark.getX() + 1190), (landmark.getY() + 90)))
+ #   deployPoints.append(Location((landmark.getX() + 1251), (landmark.getY() + 29)))
+ #   deployPoints.append(Location((landmark.getX() + 1318), (landmark.getY() - 14)))
+ #   deployPoints.append(Location((landmark.getX() + 1352), (landmark.getY() - 42)))
+ #   deployPoints.append(Location((landmark.getX() + 1386), (landmark.getY() - 85)))
+ #   deployPoints.append(Location((landmark.getX() + 1351), (landmark.getY() - 122)))
+ #   deployPoints.append(Location((landmark.getX() + 1279), (landmark.getY() - 176)))
+ #   deployPoints.append(Location((landmark.getX() + 1229), (landmark.getY() - 213)))
+ #   deployPoints.append(Location((landmark.getX() + 1163), (landmark.getY() - 266)))
+ #   deployPoints.append(Location((landmark.getX() + 1100), (landmark.getY() - 312)))
+ #   deployPoints.append(Location((landmark.getX() + 1040), (landmark.getY() - 353)))
     
-    #for i in deployPoints:
-    #    mouseMove(i)
+    Settings.MoveMouseDelay = 0.01
 
     try:
         troops_barbarians     = cocWindow.find("troops_barbarians.png")
+    except:
+        troops_barbarians = False
+    
+    try:
         troops_archers        = cocWindow.find("troops_archers.png")
+    except:
+        troops_archers = False
+
+    try:
         troops_wallbreakers   = cocWindow.find("troops_wallbreakers.png")
+    except:
+        troops_wallbreakers = False
+
+    try:
         troops_clancastle     = cocWindow.find("troops_clancastle.png")
+    except:
+        troops_clancastle = False
+
+    try:
         troops_barbking       = cocWindow.find("troops_barbking.png")
+    except:
+        troops_barbking = False
+
+    try:
         troops_healspell      = cocWindow.find("troops_healspell.png")
     except:
-        print "Failed to find one of the troops we are using in our attack..."
+        troops_healspell = False
+
+    left_lower = 0
+    left_upper = ((len(deployPoints) / 2) - 1)
+    right_lower = (len(deployPoints) / 2)
+    right_upper = (len(deployPoints) - 1)
+
+    print "Left bounds: ", left_lower, ", ", left_upper
+    print "Right bounds: ", right_lower, ", ", right_upper
     
     # Deploy the barbarians first
     if troops_barbarians != False:
         troops_barbarians.click()
 
-        loc = 0
         for i in range(0, myArmy['barbarian']):
-            if loc >= 9:
-                loc = 0
-                
-            cocWindow.click(deployPoints[loc])
-            loc += 1
-            
-        
+            cocWindow.click(deployPoints[randint(left_lower, right_upper)])
 
-    # Then deploy the archers
-    if troops_archers != False:
-        troops_archers.click()
-
-        loc = 0
-        for i in range(0, myArmy['archer']):
-            if loc >= 9:
-                loc = 0
-                
-            cocWindow.click(deployPoints[loc])
-            loc += 1
+        #for i in range(0, (myArmy['barbarian'] / 2)):
+        #    cocWindow.click(deployPoints[randint(right_lower, right_upper)])
 
     # Then the wallbreakers
     if troops_wallbreakers != False:
         troops_wallbreakers.click()
 
-        loc = 0
         for i in range(0, (myArmy['wallbreaker'] / 2)):
-            if loc >= 9:
-                loc = 0
-                
+            loc = randint(left_lower, right_upper)
             cocWindow.click(deployPoints[loc])
             cocWindow.click(deployPoints[loc])
-            loc += 1
+
+    # Then deploy the archers
+    if troops_archers != False:
+        troops_archers.click()
+
+        for i in range(0, myArmy['archer']):
+            cocWindow.click(deployPoints[randint(left_lower, right_upper)])
+
+        #for i in range(0, (myArmy['archer'] / 2)):
+        #    cocWindow.click(deployPoints[randint(right_lower, right_upper)])
 
     # Then the Barb King if available
     if troops_barbking != False:
         troops_barbking.click()
-        cocWindow.click(deployPoints[9])
-        sleep(2)
-        # Rage the barb king 2 seconds after delpoy
+        cocWindow.click(deployPoints[randint(0, right_upper)])
+        sleep(8)
         troops_barbking.click()
 
     # Then clan castle troops if available
     if troops_clancastle != False:
         troops_clancastle.click()
-        cocWindow.click(deployPoints[9])
+        cocWindow.click(deployPoints[randint(0, right_upper)])
 
-    print "Done deploying troops. Everything except spells should have been used."
+    print "[+] Troops deployed"
 
     Settings.MoveMouseDelay = 0.5
     
@@ -231,7 +277,6 @@ def finishBattleAndGoHome():
     #       and record them for later analysis and review
     cocWindow.wait("1420266239930.png", FOREVER)
     cocWindow.getLastMatch().click()
-    sleep(10)
     
     return True
 
@@ -243,7 +288,7 @@ def trainTroops(troops):
     # -- 45 Barbs, 45 Archers, 3/2 Wallbreakers
     #
     # - Set timer for 24 minutes to begin next attack
-    print "Received request to train troops."
+    print "[+] Training troops"
     
     village = Region((cocWindow.x + 210), (cocWindow.y + 85), 1025, 790)
 
@@ -310,7 +355,7 @@ def trainTroops(troops):
         return
 
     try:
-        village.find(Pattern("1420307449007.png").similar(0.90)).click()
+        village.find(Pattern("1420482460039.png").similar(0.90)).click()
         cocWindow.find("1420240132902.png").click()
         sleep(0.5)
 
@@ -568,6 +613,25 @@ def checkIdle():
 
 
 
+def testOcr():
+    switchApp("C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe")
+    sleep(1)
+
+    try:
+        goldRegion = selectRegion("Select Loot")
+        gold = numberOCR(goldRegion, 'opponentLoot')
+
+        print "Loot: ", gold
+
+    except:
+        print "Failed :("
+        print sys.exc_info()[0]
+        print sys.exc_info()[1]
+
+    return
+
+
+
 ##### Helper Functions
 # OCR for numbers
 # - Currently calibrated for Gold/Elixir/DE/Gems of your villiage
@@ -580,8 +644,9 @@ def numberOCR(Reg, ocrType):
         
     digitalNumber = 0
     resultList = list()
-    t1 = time.time()
-    #Reg.highlight(1)
+    
+    # Reg.highlight(1)
+    
     for x in numberImages:
         if Reg.exists(x,0):
             Reg.findAll(x)
@@ -617,12 +682,8 @@ def numberOCR(Reg, ocrType):
     # trainTroops(myArmy)
 
 # collectResources()
-# sleep(1)
 # donateTroops()
-# attack()
 # trainTroops(myArmy)
-
-# attack()
+attack()
 # deployTroops()
 # finishBattleAndGoHome()
-# trainTroops(myArmy)

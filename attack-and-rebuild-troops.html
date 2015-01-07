@@ -72,6 +72,7 @@
 <pre class="sikuli-code">
 <span class="kw">from</span> datetime <span class="kw">import</span> datetime
 <span class="kw">from</span> math <span class="kw">import</span> *
+<span class="kw">from</span> random <span class="kw">import</span> *
 
 <span class="cmt">#cocWindow = False
 </span>
@@ -96,28 +97,28 @@ myArmy = {
     <span class="str">'giant'</span>:         <span class="dig">0</span>,
     <span class="str">'goblin'</span>:        <span class="dig">0</span>,
     <span class="str">'wallbreaker'</span>:   <span class="dig">10</span>,
-    <span class="str">'balloons'</span>:      <span class="dig">0</span>,
-    <span class="str">'wizards'</span>:       <span class="dig">0</span>,
-    <span class="str">'healers'</span>:       <span class="dig">0</span>,
-    <span class="str">'dragons'</span>:       <span class="dig">0</span>,
-    <span class="str">'pekkas'</span>:        <span class="dig">0</span>
+    <span class="str">'balloon'</span>:      <span class="dig">0</span>,
+    <span class="str">'wizard'</span>:       <span class="dig">0</span>,
+    <span class="str">'healer'</span>:       <span class="dig">0</span>,
+    <span class="str">'dragon'</span>:       <span class="dig">0</span>,
+    <span class="str">'pekka'</span>:        <span class="dig">0</span>
 }
 
-minGoldToAttack = <span class="dig">50000</span>
-minElixirToAttack = <span class="dig">100000</span>
-minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting this to more than 0 we avoid attacking low level bases...</span>
-
+<span class="cmt"># TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
+</span>minGoldToAttack = <span class="dig">30000</span>
+minElixirToAttack = <span class="dig">75000</span>
+<span class="cmt"># minDeToAttack = 0
+</span>
 
 
 <span class="kw">def</span> attack():
     <span class="kw">if</span> startAttacking() == False:
         <span class="kw">return</span> False
 
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">5</span>):
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">20</span>):
         <span class="kw">if</span> isGoodOpponent() == True:
             <span class="kw">if</span> deployTroops() == True:
                 finishBattleAndGoHome()
-                trainTroops(myArmy)
                 <span class="kw">return</span> True
             <span class="kw">else</span>:
                 <span class="kw">return</span> False
@@ -149,33 +150,33 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 
 <span class="kw">def</span> nextOpponent():
     cocWindow.<span class="skw">find</span>(<img src="1420259749784.png" />).<span class="skw">click</span>()
+    <span class="skw">sleep</span>(<span class="dig">3</span>)
     cocWindow.<span class="skw">wait</span>(<img src="1420258809432.png" />, <span class="dig">30</span>)
+    <span class="skw">sleep</span>(<span class="dig">3</span>)
+
     <span class="kw">return</span> True
 
 
 
 <span class="kw">def</span> isGoodOpponent():
-    <span class="cmt"># Routine to find a viable opponent
-</span>    <span class="cmt"># to attack.
-</span>    <span class="cmt"># - Use OCR to determine acceptable loot (configurable)
-</span>    <span class="cmt"># - Return True when acceptable opponent has been found
+    <span class="cmt">## TODO: Test for high level TH/defense/walls/etc
 </span>    <span class="kw">try</span>:
         goldRegion        = Region((cocWindow.x + <span class="dig">67</span>), (cocWindow.y + <span class="dig">112</span>), <span class="dig">135</span>, <span class="dig">28</span>)
         elixirRegion      = Region((cocWindow.x + <span class="dig">64</span>), (cocWindow.y + <span class="dig">149</span>), <span class="dig">135</span>, <span class="dig">28</span>)
-        deRegion          = Region((cocWindow.x + <span class="dig">64</span>), (cocWindow.y + <span class="dig">188</span>), <span class="dig">125</span>, <span class="dig">28</span>)
-
+        <span class="cmt"># deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
+</span>
         gold = numberOCR(goldRegion, <span class="str">'opponentLoot'</span>)
         elixir = numberOCR(elixirRegion, <span class="str">'opponentLoot'</span>)
-        de = numberOCR(deRegion, <span class="str">'opponentLoot'</span>)
-
+        <span class="cmt"># de = numberOCR(deRegion, 'opponentLoot')
+</span>
         <span class="kw">print</span> <span class="str">"Gold: "</span>, gold
         <span class="kw">print</span> <span class="str">"Elixir: "</span>, elixir
-        <span class="kw">print</span> <span class="str">"Dark Elixir: "</span>, de
-
+        <span class="cmt"># print "Dark Elixir: ", de
+</span>
         <span class="kw">if</span> gold &gt;= minGoldToAttack:
             <span class="kw">if</span> elixir &gt;= minElixirToAttack:
-                <span class="kw">if</span> de &gt;= minDeToAttack:
-                    <span class="kw">return</span> True
+                <span class="cmt">#if de &gt;= minDeToAttack:
+</span>                <span class="kw">return</span> True
 
         <span class="kw">return</span> False
     <span class="kw">except</span>:
@@ -187,110 +188,155 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 
 
 <span class="kw">def</span> deployTroops():
-    <span class="cmt"># Routine to deploy troops after an acceptable
-</span>    <span class="cmt"># opponent has been found.
-</span>    <span class="cmt">#
-</span>    <span class="cmt"># - Deploy barbarians first on two sides of village
-</span>    <span class="cmt"># - Deploy archers next on two sides of village
-</span>    <span class="cmt"># - Deploy barb king and rage immediately (if in inventory)
-</span>    <span class="cmt"># - Deploy wall breakers in sets of two on both sides of village
-</span>    <span class="cmt"># - Deploy clan castle troops (if in inventory) on random side
-</span>    <span class="cmt">#
-</span>    <span class="cmt"># - Watch for end of match screen
-</span>    <span class="cmt"># -- OCR the loot gained
-</span>    <span class="cmt"># -- Determine win/loss
-</span>    <span class="cmt"># -- Record (somewhere) the match results for future analysis and review
-</span>    <span class="cmt"># - Return True when returned to village, False on exception
-</span>    <span class="kw">print</span> <span class="str">"Deploying troops!"</span>
+    <span class="cmt"># TODO: Check for full-ish collectors and deploy troops differently if they exist (around all edges)
+</span>
+    <span class="kw">print</span> <span class="str">"[+] Deploying troops"</span>
 
     <span class="kw">try</span>:
-        landmark = cocWindow.<span class="skw">find</span>(<img src="attack_landmark.png" />)
+        <span class="cmt"># landmark = cocWindow.find("attack_landmark.png")
+</span>        landmark = cocWindow.<span class="skw">find</span>(<img src="attack_landmark2.png" />)
+        landmark.highlight(<span class="dig">1</span>)
+
+        Settings.DelayAfterDrag = <span class="dig">0</span>
+        Settings.DelayBeforeDrop = <span class="dig">0.1</span>
+        Settings.MoveMouseDelay = <span class="dig">0.2</span>
+        <span class="skw">dragDrop</span>(landmark.getCenter(), Location(cocWindow.x + <span class="dig">68</span>, cocWindow.y + <span class="dig">462</span>))
+        Settings.DelayAfterDrag = <span class="dig">0.3</span>
+        Settings.DelayAfterDrop = <span class="dig">0.3</span>
+        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+
+        landmark = cocWindow.<span class="skw">find</span>(<img src="attack_landmark2.png" />)
+        landmark.highlight(<span class="dig">1</span>)
+
     <span class="kw">except</span>:
         <span class="kw">print</span> <span class="str">"[!] Could not find attack landmark. Aborting attack."</span>
         cocWindow.<span class="skw">find</span>(<img src="1420258809432.png" />).<span class="skw">click</span>()
-
-    <span class="kw">print</span> landmark.getX(), landmark.getY()
+        <span class="kw">return</span> False
 
     deployPoints = []
-    deployPoints.append(Location((landmark.getX() - <span class="dig">70</span>), (landmark.getY() + <span class="dig">250</span>)))
-    deployPoints.append(Location((landmark.getX() - <span class="dig">40</span>), (landmark.getY() + <span class="dig">210</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">18</span>), (landmark.getY() + <span class="dig">165</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">70</span>), (landmark.getY() + <span class="dig">125</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">130</span>), (landmark.getY() + <span class="dig">75</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">175</span>), (landmark.getY() + <span class="dig">45</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">225</span>), (landmark.getY() + <span class="dig">10</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">265</span>), (landmark.getY() - <span class="dig">20</span>)))
-    deployPoints.append(Location((landmark.getX() + <span class="dig">320</span>), (landmark.getY() - <span class="dig">64</span>)))
-    deployPoints.append(Location((landmark.getX() - <span class="dig">30</span>), (landmark.getY() + <span class="dig">420</span>)))
+    <span class="cmt"># deployPoints.append(Location((landmark.getX() - 70), (landmark.getY() + 250)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() - 40), (landmark.getY() + 210)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 18), (landmark.getY() + 165)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 70), (landmark.getY() + 125)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 130), (landmark.getY() + 75)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 175), (landmark.getY() + 45)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 225), (landmark.getY() + 10)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 265), (landmark.getY() - 20)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() + 320), (landmark.getY() - 64)))
+</span>    <span class="cmt"># deployPoints.append(Location((landmark.getX() - 30), (landmark.getY() + 420)))
+</span>
+    deployPoints.append(Location((landmark.getX() + <span class="dig">334</span>), (landmark.getY() + <span class="dig">146</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">286</span>), (landmark.getY() + <span class="dig">113</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">237</span>), (landmark.getY() + <span class="dig">78</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">200</span>), (landmark.getY() + <span class="dig">47</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">148</span>), (landmark.getY() + <span class="dig">14</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">110</span>), (landmark.getY() - <span class="dig">20</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">40</span>), (landmark.getY() - <span class="dig">80</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">104</span>), (landmark.getY() - <span class="dig">130</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">160</span>), (landmark.getY() - <span class="dig">169</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">201</span>), (landmark.getY() - <span class="dig">204</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">260</span>), (landmark.getY() - <span class="dig">248</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">315</span>), (landmark.getY() - <span class="dig">290</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">360</span>), (landmark.getY() - <span class="dig">325</span>)))
+    deployPoints.append(Location((landmark.getX() + <span class="dig">425</span>), (landmark.getY() - <span class="dig">372</span>)))
 
+ <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1000), (landmark.getY() + 241)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1057), (landmark.getY() + 197)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1130), (landmark.getY() + 138)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1190), (landmark.getY() + 90)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1251), (landmark.getY() + 29)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1318), (landmark.getY() - 14)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1352), (landmark.getY() - 42)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1386), (landmark.getY() - 85)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1351), (landmark.getY() - 122)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1279), (landmark.getY() - 176)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1229), (landmark.getY() - 213)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1163), (landmark.getY() - 266)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1100), (landmark.getY() - 312)))
+</span> <span class="cmt">#   deployPoints.append(Location((landmark.getX() + 1040), (landmark.getY() - 353)))
+</span>
     Settings.MoveMouseDelay = <span class="dig">0.01</span>
 
-    <span class="cmt">#for i in deployPoints:
-</span>    <span class="cmt">#    mouseMove(i)
-</span>
     <span class="kw">try</span>:
         troops_barbarians     = cocWindow.<span class="skw">find</span>(<img src="troops_barbarians.png" />)
+    <span class="kw">except</span>:
+        troops_barbarians = False
+
+    <span class="kw">try</span>:
         troops_archers        = cocWindow.<span class="skw">find</span>(<img src="troops_archers.png" />)
+    <span class="kw">except</span>:
+        troops_archers = False
+
+    <span class="kw">try</span>:
         troops_wallbreakers   = cocWindow.<span class="skw">find</span>(<img src="troops_wallbreakers.png" />)
+    <span class="kw">except</span>:
+        troops_wallbreakers = False
+
+    <span class="kw">try</span>:
         troops_clancastle     = cocWindow.<span class="skw">find</span>(<img src="troops_clancastle.png" />)
+    <span class="kw">except</span>:
+        troops_clancastle = False
+
+    <span class="kw">try</span>:
         troops_barbking       = cocWindow.<span class="skw">find</span>(<img src="troops_barbking.png" />)
+    <span class="kw">except</span>:
+        troops_barbking = False
+
+    <span class="kw">try</span>:
         troops_healspell      = cocWindow.<span class="skw">find</span>(<img src="troops_healspell.png" />)
     <span class="kw">except</span>:
-        <span class="kw">print</span> <span class="str">"Failed to find one of the troops we are using in our attack..."</span>
+        troops_healspell = False
+
+    left_lower = <span class="dig">0</span>
+    left_upper = ((len(deployPoints) / <span class="dig">2</span>) - <span class="dig">1</span>)
+    right_lower = (len(deployPoints) / <span class="dig">2</span>)
+    right_upper = (len(deployPoints) - <span class="dig">1</span>)
+
+    <span class="kw">print</span> <span class="str">"Left bounds: "</span>, left_lower, <span class="str">", "</span>, left_upper
+    <span class="kw">print</span> <span class="str">"Right bounds: "</span>, right_lower, <span class="str">", "</span>, right_upper
 
     <span class="cmt"># Deploy the barbarians first
 </span>    <span class="kw">if</span> troops_barbarians != False:
         troops_barbarians.<span class="skw">click</span>()
 
-        loc = <span class="dig">0</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="str">'barbarian'</span>]):
-            <span class="kw">if</span> loc &gt;= <span class="dig">9</span>:
-                loc = <span class="dig">0</span>
+            cocWindow.<span class="skw">click</span>(deployPoints[randint(left_lower, right_upper)])
 
+        <span class="cmt">#for i in range(0, (myArmy['barbarian'] / 2)):
+</span>        <span class="cmt">#    cocWindow.click(deployPoints[randint(right_lower, right_upper)])
+</span>
+    <span class="cmt"># Then the wallbreakers
+</span>    <span class="kw">if</span> troops_wallbreakers != False:
+        troops_wallbreakers.<span class="skw">click</span>()
+
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (myArmy[<span class="str">'wallbreaker'</span>] / <span class="dig">2</span>)):
+            loc = randint(left_lower, right_upper)
             cocWindow.<span class="skw">click</span>(deployPoints[loc])
-            loc += <span class="dig">1</span>
-
-
+            cocWindow.<span class="skw">click</span>(deployPoints[loc])
 
     <span class="cmt"># Then deploy the archers
 </span>    <span class="kw">if</span> troops_archers != False:
         troops_archers.<span class="skw">click</span>()
 
-        loc = <span class="dig">0</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="str">'archer'</span>]):
-            <span class="kw">if</span> loc &gt;= <span class="dig">9</span>:
-                loc = <span class="dig">0</span>
+            cocWindow.<span class="skw">click</span>(deployPoints[randint(left_lower, right_upper)])
 
-            cocWindow.<span class="skw">click</span>(deployPoints[loc])
-            loc += <span class="dig">1</span>
-
-    <span class="cmt"># Then the wallbreakers
-</span>    <span class="kw">if</span> troops_wallbreakers != False:
-        troops_wallbreakers.<span class="skw">click</span>()
-
-        loc = <span class="dig">0</span>
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (myArmy[<span class="str">'wallbreaker'</span>] / <span class="dig">2</span>)):
-            <span class="kw">if</span> loc &gt;= <span class="dig">9</span>:
-                loc = <span class="dig">0</span>
-
-            cocWindow.<span class="skw">click</span>(deployPoints[loc])
-            cocWindow.<span class="skw">click</span>(deployPoints[loc])
-            loc += <span class="dig">1</span>
-
+        <span class="cmt">#for i in range(0, (myArmy['archer'] / 2)):
+</span>        <span class="cmt">#    cocWindow.click(deployPoints[randint(right_lower, right_upper)])
+</span>
     <span class="cmt"># Then the Barb King if available
 </span>    <span class="kw">if</span> troops_barbking != False:
         troops_barbking.<span class="skw">click</span>()
-        cocWindow.<span class="skw">click</span>(deployPoints[<span class="dig">9</span>])
-        <span class="skw">sleep</span>(<span class="dig">2</span>)
-        <span class="cmt"># Rage the barb king 2 seconds after delpoy
-</span>        troops_barbking.<span class="skw">click</span>()
+        cocWindow.<span class="skw">click</span>(deployPoints[randint(<span class="dig">0</span>, right_upper)])
+        <span class="skw">sleep</span>(<span class="dig">8</span>)
+        troops_barbking.<span class="skw">click</span>()
 
     <span class="cmt"># Then clan castle troops if available
 </span>    <span class="kw">if</span> troops_clancastle != False:
         troops_clancastle.<span class="skw">click</span>()
-        cocWindow.<span class="skw">click</span>(deployPoints[<span class="dig">9</span>])
+        cocWindow.<span class="skw">click</span>(deployPoints[randint(<span class="dig">0</span>, right_upper)])
 
-    <span class="kw">print</span> <span class="str">"Done deploying troops. Everything except spells should have been used."</span>
+    <span class="kw">print</span> <span class="str">"[+] Troops deployed"</span>
 
     Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
@@ -303,7 +349,6 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 </span>    <span class="cmt">#       and record them for later analysis and review
 </span>    cocWindow.<span class="skw">wait</span>(<img src="1420266239930.png" />, FOREVER)
     cocWindow.getLastMatch().<span class="skw">click</span>()
-    <span class="skw">sleep</span>(<span class="dig">10</span>)
 
     <span class="kw">return</span> True
 
@@ -315,7 +360,7 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 </span>    <span class="cmt"># -- 45 Barbs, 45 Archers, 3/2 Wallbreakers
 </span>    <span class="cmt">#
 </span>    <span class="cmt"># - Set timer for 24 minutes to begin next attack
-</span>    <span class="kw">print</span> <span class="str">"Received request to train troops."</span>
+</span>    <span class="kw">print</span> <span class="str">"[+] Training troops"</span>
 
     village = Region((cocWindow.x + <span class="dig">210</span>), (cocWindow.y + <span class="dig">85</span>), <span class="dig">1025</span>, <span class="dig">790</span>)
 
@@ -382,7 +427,7 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
         <span class="kw">return</span>
 
     <span class="kw">try</span>:
-        village.<span class="skw">find</span>(Pattern(<img src="1420307449007.png" />).similar(<span class="dig">0.90</span>)).<span class="skw">click</span>()
+        village.<span class="skw">find</span>(Pattern(<img src="1420482460039.png" />).similar(<span class="dig">0.90</span>)).<span class="skw">click</span>()
         cocWindow.<span class="skw">find</span>(<img src="1420240132902.png" />).<span class="skw">click</span>()
         <span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
@@ -640,6 +685,25 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 
 
 
+<span class="kw">def</span> testOcr():
+    switchApp(<span class="str">"C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe"</span>)
+    <span class="skw">sleep</span>(<span class="dig">1</span>)
+
+    <span class="kw">try</span>:
+        goldRegion = selectRegion(<span class="str">"Select Loot"</span>)
+        gold = numberOCR(goldRegion, <span class="str">'opponentLoot'</span>)
+
+        <span class="kw">print</span> <span class="str">"Loot: "</span>, gold
+
+    <span class="kw">except</span>:
+        <span class="kw">print</span> <span class="str">"Failed :("</span>
+        <span class="kw">print</span> sys.exc_info()[<span class="dig">0</span>]
+        <span class="kw">print</span> sys.exc_info()[<span class="dig">1</span>]
+
+    <span class="kw">return</span>
+
+
+
 <span class="cmt">##### Helper Functions
 </span><span class="cmt"># OCR for numbers
 </span><span class="cmt"># - Currently calibrated for Gold/Elixir/DE/Gems of your villiage
@@ -652,9 +716,10 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 
     digitalNumber = <span class="dig">0</span>
     resultList = list()
-    t1 = time.time()
-    <span class="cmt">#Reg.highlight(1)
-</span>    <span class="kw">for</span> x <span class="kw">in</span> numberImages:
+
+    <span class="cmt"># Reg.highlight(1)
+</span>
+    <span class="kw">for</span> x <span class="kw">in</span> numberImages:
         <span class="kw">if</span> Reg.exists(x,<span class="dig">0</span>):
             Reg.findAll(x)
             <span class="cmt">#digital find result into list            
@@ -689,15 +754,11 @@ minDeToAttack = <span class="dig">1</span>    <span class="cmt"># By setting thi
 </span>    <span class="cmt"># trainTroops(myArmy)
 </span>
 <span class="cmt"># collectResources()
-</span><span class="cmt"># sleep(1)
 </span><span class="cmt"># donateTroops()
-</span><span class="cmt"># attack()
 </span><span class="cmt"># trainTroops(myArmy)
-</span>
-<span class="cmt"># attack()
-</span><span class="cmt"># deployTroops()
-</span><span class="cmt"># finishBattleAndGoHome()
-</span><span class="cmt"># trainTroops(myArmy)</span>
+</span>attack()
+<span class="cmt"># deployTroops()
+</span><span class="cmt"># finishBattleAndGoHome()</span>
 </pre>
 </body>
 </html>
