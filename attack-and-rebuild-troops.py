@@ -7,7 +7,6 @@ from random import *
 # We are assuming BlueStacks is already running and
 # COC is loaded and ready to go (centered, zoomed out, etc.)
 cocWindow = App("Bluestacks").window(0)
-cocSidebar = Region((cocWindow.x + 6), (cocWindow.y + 185), 468, 690)
 
 timestamps = {
     'start':                False,
@@ -417,7 +416,7 @@ def donateTroops():
     _openSidebar()
 
     try:
-        for donate in cocSidebar.findAll(Pattern("1420237685511.png").similar(0.80)):
+        for donate in cocWindow.findAll(Pattern("1420237685511.png").similar(0.80)):
             donate.click()
             sleep(1)
             donateDialog = Region((donate.x + 88), (donate.y - 175), 765, 435)
@@ -477,8 +476,6 @@ def _closeSidebar():
 
 
 def collectResources():
-    startAndFocusApp()
-    
     resources = ["1420235690079.png", "1420231189687.png" ,Pattern("1420230934586.png").similar(0.80)]
 
     window = Region((cocWindow.x + 210), (cocWindow.y + 85), 1025, 790)
@@ -604,6 +601,8 @@ def checkIdle():
     if (cocWindow.exists("1420184045669.png", 0)):
         cocWindow.find("1420184095574.png").click()
         updateTimestamp('_lastInteraction')
+        # TODO: Replace this with better logic
+        #       i.e. wait([SHOP ICON], FOREVER) or something similar
         sleep(60)
         zoomOutAndCenter()
 
@@ -683,7 +682,7 @@ def numberOCR(Reg, ocrType):
 
 # collectResources()
 # donateTroops()
-# trainTroops(myArmy)
-attack()
+trainTroops(myArmy)
+# attack()
 # deployTroops()
 # finishBattleAndGoHome()

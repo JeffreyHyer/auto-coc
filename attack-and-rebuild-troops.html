@@ -79,7 +79,6 @@
 <span class="cmt"># We are assuming BlueStacks is already running and
 </span><span class="cmt"># COC is loaded and ready to go (centered, zoomed out, etc.)
 </span>cocWindow = App(<span class="str">"Bluestacks"</span>).window(<span class="dig">0</span>)
-cocSidebar = Region((cocWindow.x + <span class="dig">6</span>), (cocWindow.y + <span class="dig">185</span>), <span class="dig">468</span>, <span class="dig">690</span>)
 
 timestamps = {
     <span class="str">'start'</span>:                False,
@@ -489,7 +488,7 @@ minElixirToAttack = <span class="dig">75000</span>
     _openSidebar()
 
     <span class="kw">try</span>:
-        <span class="kw">for</span> donate <span class="kw">in</span> cocSidebar.findAll(Pattern(<img src="1420237685511.png" />).similar(<span class="dig">0.80</span>)):
+        <span class="kw">for</span> donate <span class="kw">in</span> cocWindow.findAll(Pattern(<img src="1420237685511.png" />).similar(<span class="dig">0.80</span>)):
             donate.<span class="skw">click</span>()
             <span class="skw">sleep</span>(<span class="dig">1</span>)
             donateDialog = Region((donate.x + <span class="dig">88</span>), (donate.y - <span class="dig">175</span>), <span class="dig">765</span>, <span class="dig">435</span>)
@@ -549,8 +548,6 @@ minElixirToAttack = <span class="dig">75000</span>
 
 
 <span class="kw">def</span> collectResources():
-    startAndFocusApp()
-
     resources = [<img src="1420235690079.png" />, <img src="1420231189687.png" /> ,Pattern(<img src="1420230934586.png" />).similar(<span class="dig">0.80</span>)]
 
     window = Region((cocWindow.x + <span class="dig">210</span>), (cocWindow.y + <span class="dig">85</span>), <span class="dig">1025</span>, <span class="dig">790</span>)
@@ -676,7 +673,9 @@ minElixirToAttack = <span class="dig">75000</span>
     <span class="kw">if</span> (cocWindow.exists(<img src="1420184045669.png" />, <span class="dig">0</span>)):
         cocWindow.<span class="skw">find</span>(<img src="1420184095574.png" />).<span class="skw">click</span>()
         updateTimestamp(<span class="str">'_lastInteraction'</span>)
-        <span class="skw">sleep</span>(<span class="dig">60</span>)
+        <span class="cmt"># TODO: Replace this with better logic
+</span>        <span class="cmt">#       i.e. wait([SHOP ICON], FOREVER) or something similar
+</span>        <span class="skw">sleep</span>(<span class="dig">60</span>)
         zoomOutAndCenter()
 
         <span class="kw">return</span> True
@@ -755,9 +754,9 @@ minElixirToAttack = <span class="dig">75000</span>
 </span>
 <span class="cmt"># collectResources()
 </span><span class="cmt"># donateTroops()
-</span><span class="cmt"># trainTroops(myArmy)
-</span>attack()
-<span class="cmt"># deployTroops()
+</span>trainTroops(myArmy)
+<span class="cmt"># attack()
+</span><span class="cmt"># deployTroops()
 </span><span class="cmt"># finishBattleAndGoHome()</span>
 </pre>
 </body>
