@@ -91,35 +91,25 @@ timestamps = {
     <span class="str">'_lastInteraction'</span>:     False
 }
 
-myArmy = {
-    <span class="str">'barbarian'</span>:     <span class="dig">90</span>,
-    <span class="str">'archer'</span>:        <span class="dig">90</span>,
-    <span class="str">'giant'</span>:         <span class="dig">0</span>,
-    <span class="str">'goblin'</span>:        <span class="dig">0</span>,
-    <span class="str">'wallbreaker'</span>:   <span class="dig">10</span>,
-    <span class="str">'balloon'</span>:      <span class="dig">0</span>,
-    <span class="str">'wizard'</span>:       <span class="dig">0</span>,
-    <span class="str">'healer'</span>:       <span class="dig">0</span>,
-    <span class="str">'dragon'</span>:       <span class="dig">0</span>,
-    <span class="str">'pekka'</span>:        <span class="dig">0</span>
-}
-
-trainTimes = {
-    <span class="str">'barbarian'</span>:     <span class="dig">20</span>,
-    <span class="str">'archer'</span>:        <span class="dig">25</span>,
-    <span class="str">'giant'</span>:         <span class="dig">120</span>,
-    <span class="str">'goblin'</span>:        <span class="dig">30</span>,
-    <span class="str">'wallbreaker'</span>:   <span class="dig">120</span>,
-    <span class="str">'balloon'</span>:       <span class="dig">480</span>,
-    <span class="str">'wizard'</span>:        <span class="dig">480</span>,
-    <span class="str">'healer'</span>:        <span class="dig">900</span>,
-    <span class="str">'dragon'</span>:        <span class="dig">1800</span>,
-    <span class="str">'pekka'</span>:         <span class="dig">2700</span>
-}
+<span class="cmt"># Barbarians
+</span><span class="cmt"># Archers
+</span><span class="cmt"># Giants
+</span><span class="cmt"># Goblins
+</span><span class="cmt"># Wall Breakers
+</span><span class="cmt"># Balloons
+</span><span class="cmt"># Wizards
+</span><span class="cmt"># Healers
+</span><span class="cmt"># Dragons
+</span><span class="cmt"># P.E.K.K.A
+</span>
+myArmy = [<span class="dig">90</span>, <span class="dig">90</span>, <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">10</span>, <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>]     <span class="cmt"># Barch          90 Barbs, 90 Archers, 10 WB</span>
+<span class="cmt"># myArmy = [0, 80, 12, 44, 8, 0, 0, 0, 0, 0]       # Farming Mix    80 Archers, 12 Giants, 44 Goblins, 8 WB
+</span>
+trainTimes = [<span class="dig">20</span>, <span class="dig">25</span>, <span class="dig">120</span>, <span class="dig">30</span>, <span class="dig">120</span>, <span class="dig">480</span>, <span class="dig">480</span>, <span class="dig">900</span>, <span class="dig">1800</span>, <span class="dig">2700</span>]
 
 <span class="cmt"># TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
-</span>minGoldToAttack = <span class="dig">80000</span>
-minElixirToAttack = <span class="dig">10000</span>
+</span>minGoldToAttack = <span class="dig">100000</span>
+minElixirToAttack = <span class="dig">25000</span>
 minDeToAttack = <span class="dig">0</span>
 
 
@@ -224,6 +214,7 @@ minDeToAttack = <span class="dig">0</span>
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
         landmark = cocWindow.<span class="skw">find</span>(<img src="attack_landmark2.png" />)
+        landmark.highlight(<span class="dig">1</span>)    <span class="cmt"># Necessary to prevent "flinging" the screen...</span>
 
     <span class="kw">except</span>:
         <span class="kw">print</span> <span class="str">"[!] Could not find attack landmark. Aborting attack."</span>
@@ -317,7 +308,7 @@ minDeToAttack = <span class="dig">0</span>
 </span>    <span class="kw">if</span> troops_barbarians != False:
         troops_barbarians.<span class="skw">click</span>()
 
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="str">'barbarian'</span>]):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="dig">0</span>]):
             cocWindow.<span class="skw">click</span>(deployPoints[randint(left_lower, right_upper)])
 
         <span class="cmt">#for i in range(0, (myArmy['barbarian'] / 2)):
@@ -327,7 +318,7 @@ minDeToAttack = <span class="dig">0</span>
 </span>    <span class="kw">if</span> troops_wallbreakers != False:
         troops_wallbreakers.<span class="skw">click</span>()
 
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (myArmy[<span class="str">'wallbreaker'</span>] / <span class="dig">2</span>)):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (myArmy[<span class="dig">4</span>] / <span class="dig">2</span>)):
             loc = randint(left_lower, right_upper)
             cocWindow.<span class="skw">click</span>(deployPoints[loc])
             cocWindow.<span class="skw">click</span>(deployPoints[loc])
@@ -336,7 +327,7 @@ minDeToAttack = <span class="dig">0</span>
 </span>    <span class="kw">if</span> troops_archers != False:
         troops_archers.<span class="skw">click</span>()
 
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="str">'archer'</span>]):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, myArmy[<span class="dig">1</span>]):
             cocWindow.<span class="skw">click</span>(deployPoints[randint(left_lower, right_upper)])
 
         <span class="cmt">#for i in range(0, (myArmy['archer'] / 2)):
@@ -405,43 +396,18 @@ minDeToAttack = <span class="dig">0</span>
     ]
     totalTroops = <span class="dig">0</span>
 
-    <span class="kw">for</span> troop <span class="kw">in</span> troops.keys():
-        index = None
+    <span class="kw">for</span> (index, count) <span class="kw">in</span> enumerate(troops):
+        theBarracks[<span class="dig">0</span>][index] = floor((count / <span class="dig">4</span>))
+        theBarracks[<span class="dig">1</span>][index] = floor((count / <span class="dig">4</span>))
+        theBarracks[<span class="dig">2</span>][index] = floor((count / <span class="dig">4</span>))
+        theBarracks[<span class="dig">3</span>][index] = floor((count / <span class="dig">4</span>))
 
-        <span class="kw">if</span> troop == <span class="str">'barbarian'</span>:
-            index = <span class="dig">0</span>
-        <span class="kw">elif</span> troop == <span class="str">'archer'</span>:
-            index = <span class="dig">1</span>
-        <span class="kw">elif</span> troop == <span class="str">'giant'</span>:
-            index = <span class="dig">2</span>
-        <span class="kw">elif</span> troop == <span class="str">'goblin'</span>:
-            index = <span class="dig">3</span>
-        <span class="kw">elif</span> troop == <span class="str">'wallbreaker'</span>:
-            index = <span class="dig">4</span>
-        <span class="kw">elif</span> troop == <span class="str">'balloon'</span>:
-            index = <span class="dig">5</span>
-        <span class="kw">elif</span> troop == <span class="str">'wizard'</span>:
-            index = <span class="dig">6</span>
-        <span class="kw">elif</span> troop == <span class="str">'healer'</span>:
-            index = <span class="dig">7</span>
-        <span class="kw">elif</span> troop == <span class="str">'dragon'</span>:
-            index = <span class="dig">8</span>
-        <span class="kw">elif</span> troop == <span class="str">'pekka'</span>:
-            index = <span class="dig">9</span>
-        <span class="kw">else</span>:
-            <span class="kw">print</span> <span class="str">'Invalid troop specified: '</span>, troop
-            <span class="kw">continue</span>
+        totalTroops += count
 
-        theBarracks[<span class="dig">0</span>][index] = floor((troops[troop] / <span class="dig">4</span>))
-        theBarracks[<span class="dig">1</span>][index] = floor((troops[troop] / <span class="dig">4</span>))
-        theBarracks[<span class="dig">2</span>][index] = floor((troops[troop] / <span class="dig">4</span>))
-        theBarracks[<span class="dig">3</span>][index] = floor((troops[troop] / <span class="dig">4</span>))
-
-        totalTroops += troops[troop]
-
-        <span class="kw">if</span> (troops[troop] % <span class="dig">4</span> &gt; <span class="dig">0</span>):
-            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (troops[troop] % <span class="dig">4</span>)):
-                theBarracks[i][index] += <span class="dig">1</span>
+        <span class="kw">if</span> (count % <span class="dig">4</span> &gt; <span class="dig">0</span>):
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, (count % <span class="dig">4</span>)):
+                j = barracksWithLeastTroops(theBarracks)
+                theBarracks[j][index] += <span class="dig">1</span>
 
     <span class="kw">if</span> totalTroops == <span class="dig">0</span>:
         <span class="kw">return</span>
@@ -506,6 +472,30 @@ minDeToAttack = <span class="dig">0</span>
 
 
 
+<span class="kw">def</span> barracksWithLeastTroops(barracks):
+    lowest_time = calcTrainTime(barracks[<span class="dig">0</span>])
+    lowest_i = <span class="dig">0</span>;
+
+    <span class="kw">for</span> (i, barrack) <span class="kw">in</span> enumerate(barracks):
+        time = calcTrainTime(barrack)
+        <span class="kw">if</span> time &lt; lowest_time:
+            lowest_i = i;
+            lowest_time = time
+
+    <span class="kw">return</span> lowest_i
+
+
+
+<span class="kw">def</span> calcTrainTime(barrack):
+    time = <span class="dig">0</span>
+
+    <span class="kw">for</span> (i, count) <span class="kw">in</span> enumerate(barrack):
+        time += (count * trainTimes[i])
+
+    <span class="kw">return</span> time
+
+
+
 <span class="kw">def</span> donateTroops():
     <span class="cmt"># Routine to donate troops to clan members
 </span>    <span class="cmt"># - Open sidebar
@@ -515,7 +505,7 @@ minDeToAttack = <span class="dig">0</span>
 </span>    <span class="cmt"># - Retrain donated troops
 </span>    <span class="cmt"># - Update timers (_lastInteraction, donate, buildTroops, etc.)
 </span>    donations = <span class="dig">0</span>
-    _openSidebar()
+    fSidebar()
 
     <span class="kw">try</span>:
         <span class="kw">for</span> donate <span class="kw">in</span> cocWindow.findAll(Pattern(<img src="1420237685511.png" />).similar(<span class="dig">0.80</span>)):
@@ -709,6 +699,7 @@ minDeToAttack = <span class="dig">0</span>
 <span class="cmt"># Checks to see if we've been kicked for being idle
 </span><span class="cmt"># If so, it will reload the game and reset the village
 </span><span class="cmt"># so we can pick up where we left off.
+</span><span class="cmt">#
 </span><span class="cmt"># TODO: Check for recent attack dialog when we return to from idle
 </span><span class="kw">def</span> checkIdle():
     <span class="kw">if</span> (cocWindow.exists(<img src="1420184045669.png" />, <span class="dig">0</span>)):
@@ -716,6 +707,8 @@ minDeToAttack = <span class="dig">0</span>
 
         cocWindow.<span class="skw">wait</span>(<img src="1420182438717.png" />, <span class="dig">60</span>)
         cocWindow.waitVanish(<img src="1420182438717.png" />, FOREVER)
+
+        <span class="skw">sleep</span>(<span class="dig">2</span>)
 
         zoomOutAndCenter()
 
@@ -726,12 +719,22 @@ minDeToAttack = <span class="dig">0</span>
 
 
 <span class="kw">def</span> preventIdle():
-    cocWindow.<span class="skw">find</span>(<img src="1420776357181.png" />).<span class="skw">click</span>()
-    updateTimerstamp(<span class="str">'_lastInteraction'</span>)
-    <span class="skw">sleep</span>(<span class="dig">2</span>)
-    cocWindow.<span class="skw">find</span>(<img src="1420240870546.png" />).<span class="skw">click</span>()
-    updateTimestamp(<span class="str">'_lastInteraction'</span>)
-    <span class="skw">sleep</span>(<span class="dig">2</span>)
+    <span class="kw">try</span>:
+        <span class="cmt">#cocWindow.find("1420776357181.png").click()
+</span>        <span class="cmt">#updateTimestamp('_lastInteraction')
+</span>        <span class="cmt">#sleep(2)
+</span>        <span class="cmt">#cocWindow.find("1420240870546.png").click()
+</span>        <span class="cmt">#updateTimestamp('_lastInteraction')
+</span>        <span class="cmt">#sleep(2)
+</span>
+        <span class="kw">if</span> _openSidebar() == True:
+            <span class="skw">sleep</span>(<span class="dig">5</span>)
+
+            <span class="kw">if</span> _closeSidebar() == True:
+                <span class="kw">return</span> True
+
+    <span class="kw">except</span>:
+        <span class="kw">print</span> <span class="str">"[!] Error trying to prevent idle"</span>
 
 
 
@@ -795,21 +798,22 @@ minDeToAttack = <span class="dig">0</span>
 
 
 
-
 <span class="cmt"># Main "game loop"
 </span><span class="kw">if</span> (startClashOfClans() == True):
     <span class="kw">print</span> <span class="str">"Clash of Clans has started and is ready to go!"</span>
 
     <span class="kw">while</span> (True):
         <span class="cmt"># Make sure we weren't kicked for being idle
-</span>        <span class="kw">print</span> <span class="str">"[+] Checking for idle modal"</span>
-        checkIdle()
-
-        <span class="cmt"># Collect resources every 10 minutes
-</span>        <span class="kw">if</span> ((timestamps[<span class="str">'collectResources'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'collectResources'</span>]) &gt; <span class="dig">600</span>)):
-            <span class="kw">print</span> <span class="str">"[+] Time to collect resources"</span>
-            collectResources()
-
+</span><span class="cmt">#        print "[+] Idle Check"
+</span><span class="cmt">#        checkIdle()
+</span>
+<span class="cmt">#        # Collect resources every 10 minutes
+</span><span class="cmt">#        if ((timestamps['collectResources'] == False) or (secondsSinceLast(timestamps['collectResources']) &gt; 600)):
+</span><span class="cmt">#            print "[+] Time to collect resources"
+</span><span class="cmt">#            collectResources()
+</span><span class="cmt">#        else:
+</span><span class="cmt">#            print "[INFO] Time since last collected resources: ", secondsSinceLast(timestamps['collectResources']), "/ 600"
+</span>
 <span class="cmt">#        # Donate troops every 5 minutes
 </span><span class="cmt">#        if ((timestamps['donateTroops'] == False) or (secondsSinceLast(timestamps['donateTroops']) &gt; 300)):
 </span><span class="cmt">#            print "[+] Time to donate troops"
@@ -817,17 +821,58 @@ minDeToAttack = <span class="dig">0</span>
 </span>
         <span class="cmt"># Train new troops and attack after the last trainTroops() finishes
 </span>        <span class="kw">if</span> ((timestamps[<span class="str">'trainTroops'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'trainTroops'</span>]) &gt; timeToTrainArmy())):
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"|                       WARNING                         |"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">""</span>
+
+            <span class="skw">sleep</span>(<span class="dig">2</span>)
+
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"|                       WARNING                         |"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">""</span>
+
+            <span class="skw">sleep</span>(<span class="dig">2</span>)
+
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"|                       WARNING                         |"</span>
+            <span class="kw">print</span> <span class="str">"|                                                       |"</span>
+            <span class="kw">print</span> <span class="str">"+-------------------------------------------------------+"</span>
+            <span class="kw">print</span> <span class="str">""</span>
+
+            startAndFocusApp()
+
+            <span class="skw">sleep</span>(<span class="dig">10</span>)
+
+            <span class="kw">print</span> <span class="str">"[+] Idle Check"</span>
+            checkIdle()
+
+            <span class="skw">sleep</span>(<span class="dig">5</span>)
+
             <span class="kw">print</span> <span class="str">"[+] Time to train troops and attack"</span>
             trainTroops(myArmy)
             attack()
+        <span class="kw">else</span>:
+            <span class="kw">print</span> <span class="str">"[INFO] Time since troops were trained: "</span>, secondsSinceLast(timestamps[<span class="str">'trainTroops'</span>]), <span class="str">"/"</span>, timeToTrainArmy()
 
-        <span class="cmt"># Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
-</span>        <span class="kw">if</span> ((timestamps[<span class="str">'_lastInteraction'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'_lastInteraction'</span>]) &gt; <span class="dig">30</span>)):
-            <span class="kw">print</span> <span class="str">"[+] Interacting with the screen to prevent getting kicked for too much idle time"</span>
-            preventIdle()
+<span class="cmt">#        # Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
+</span><span class="cmt">#        if ((timestamps['_lastInteraction'] == False) or (secondsSinceLast(timestamps['_lastInteraction']) &gt; 60)):
+</span><span class="cmt">#            print "[+] Interacting with the screen to prevent getting kicked for too much idle time"
+</span><span class="cmt">#            if preventIdle() == False:
+</span><span class="cmt">#                print "Something went wrong, aborting in case Sidebar didn't close."
+</span><span class="cmt">#                break
+</span><span class="cmt">#        else:
+</span><span class="cmt">#            print "[INFO] Time since last interaction: ", secondsSinceLast(timestamps['_lastInteraction'])
+</span>
+        <span class="cmt"># Sleep 20 seconds before running the loop again
+</span>        <span class="skw">sleep</span>(<span class="dig">60</span>)
 
-        <span class="cmt"># Sleep 10 seconds before running the loop again
-</span>        <span class="skw">sleep</span>(<span class="dig">10</span>)
 
 <span class="cmt"># collectResources()
 </span><span class="cmt"># donateTroops()

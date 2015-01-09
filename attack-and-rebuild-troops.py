@@ -19,35 +19,25 @@ timestamps = {
     '_lastInteraction':     False
 }
 
-myArmy = {
-    'barbarian':     90,
-    'archer':        90,
-    'giant':         0,
-    'goblin':        0,
-    'wallbreaker':   10,
-    'balloon':      0,
-    'wizard':       0,
-    'healer':       0,
-    'dragon':       0,
-    'pekka':        0
-}
+# Barbarians
+# Archers
+# Giants
+# Goblins
+# Wall Breakers
+# Balloons
+# Wizards
+# Healers
+# Dragons
+# P.E.K.K.A
 
-trainTimes = {
-    'barbarian':     20,
-    'archer':        25,
-    'giant':         120,
-    'goblin':        30,
-    'wallbreaker':   120,
-    'balloon':       480,
-    'wizard':        480,
-    'healer':        900,
-    'dragon':        1800,
-    'pekka':         2700
-}
+myArmy = [90, 90, 0, 0, 10, 0, 0, 0, 0, 0]     # Barch          90 Barbs, 90 Archers, 10 WB
+# myArmy = [0, 80, 12, 44, 8, 0, 0, 0, 0, 0]       # Farming Mix    80 Archers, 12 Giants, 44 Goblins, 8 WB
+
+trainTimes = [20, 25, 120, 30, 120, 480, 480, 900, 1800, 2700]
 
 # TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
-minGoldToAttack = 80000
-minElixirToAttack = 10000
+minGoldToAttack = 100000
+minElixirToAttack = 25000
 minDeToAttack = 0
 
 
@@ -152,6 +142,7 @@ def deployTroops():
         Settings.MoveMouseDelay = 0.5
 
         landmark = cocWindow.find("attack_landmark2.png")
+        landmark.highlight(1)    # Necessary to prevent "flinging" the screen...
         
     except:
         print "[!] Could not find attack landmark. Aborting attack."
@@ -245,7 +236,7 @@ def deployTroops():
     if troops_barbarians != False:
         troops_barbarians.click()
 
-        for i in range(0, myArmy['barbarian']):
+        for i in range(0, myArmy[0]):
             cocWindow.click(deployPoints[randint(left_lower, right_upper)])
 
         #for i in range(0, (myArmy['barbarian'] / 2)):
@@ -255,7 +246,7 @@ def deployTroops():
     if troops_wallbreakers != False:
         troops_wallbreakers.click()
 
-        for i in range(0, (myArmy['wallbreaker'] / 2)):
+        for i in range(0, (myArmy[4] / 2)):
             loc = randint(left_lower, right_upper)
             cocWindow.click(deployPoints[loc])
             cocWindow.click(deployPoints[loc])
@@ -264,7 +255,7 @@ def deployTroops():
     if troops_archers != False:
         troops_archers.click()
 
-        for i in range(0, myArmy['archer']):
+        for i in range(0, myArmy[1]):
             cocWindow.click(deployPoints[randint(left_lower, right_upper)])
 
         #for i in range(0, (myArmy['archer'] / 2)):
@@ -333,43 +324,18 @@ def trainTroops(troops):
     ]
     totalTroops = 0
 
-    for troop in troops.keys():
-        index = None
+    for (index, count) in enumerate(troops):
+        theBarracks[0][index] = floor((count / 4))
+        theBarracks[1][index] = floor((count / 4))
+        theBarracks[2][index] = floor((count / 4))
+        theBarracks[3][index] = floor((count / 4))
 
-        if troop == 'barbarian':
-            index = 0
-        elif troop == 'archer':
-            index = 1
-        elif troop == 'giant':
-            index = 2
-        elif troop == 'goblin':
-            index = 3
-        elif troop == 'wallbreaker':
-            index = 4
-        elif troop == 'balloon':
-            index = 5
-        elif troop == 'wizard':
-            index = 6
-        elif troop == 'healer':
-            index = 7
-        elif troop == 'dragon':
-            index = 8
-        elif troop == 'pekka':
-            index = 9
-        else:
-            print 'Invalid troop specified: ', troop
-            continue
+        totalTroops += count
 
-        theBarracks[0][index] = floor((troops[troop] / 4))
-        theBarracks[1][index] = floor((troops[troop] / 4))
-        theBarracks[2][index] = floor((troops[troop] / 4))
-        theBarracks[3][index] = floor((troops[troop] / 4))
-
-        totalTroops += troops[troop]
-
-        if (troops[troop] % 4 > 0):
-            for i in range(0, (troops[troop] % 4)):
-                theBarracks[i][index] += 1
+        if (count % 4 > 0):
+            for i in range(0, (count % 4)):
+                j = barracksWithLeastTroops(theBarracks)
+                theBarracks[j][index] += 1
 
     if totalTroops == 0:
         return
@@ -434,6 +400,30 @@ def trainTroops(troops):
 
 
 
+def barracksWithLeastTroops(barracks):
+    lowest_time = calcTrainTime(barracks[0])
+    lowest_i = 0;
+    
+    for (i, barrack) in enumerate(barracks):
+        time = calcTrainTime(barrack)
+        if time < lowest_time:
+            lowest_i = i;
+            lowest_time = time
+
+    return lowest_i
+
+
+
+def calcTrainTime(barrack):
+    time = 0
+
+    for (i, count) in enumerate(barrack):
+        time += (count * trainTimes[i])
+
+    return time
+
+
+
 def donateTroops():
     # Routine to donate troops to clan members
     # - Open sidebar
@@ -443,7 +433,7 @@ def donateTroops():
     # - Retrain donated troops
     # - Update timers (_lastInteraction, donate, buildTroops, etc.)
     donations = 0
-    _openSidebar()
+    fSidebar()
 
     try:
         for donate in cocWindow.findAll(Pattern("1420237685511.png").similar(0.80)):
@@ -637,6 +627,7 @@ def startAndFocusApp():
 # Checks to see if we've been kicked for being idle
 # If so, it will reload the game and reset the village
 # so we can pick up where we left off.
+#
 # TODO: Check for recent attack dialog when we return to from idle
 def checkIdle():
     if (cocWindow.exists("1420184045669.png", 0)):
@@ -644,6 +635,8 @@ def checkIdle():
         
         cocWindow.wait("1420182438717.png", 60)
         cocWindow.waitVanish("1420182438717.png", FOREVER)
+
+        sleep(2)
         
         zoomOutAndCenter()
 
@@ -654,12 +647,22 @@ def checkIdle():
 
 
 def preventIdle():
-    cocWindow.find("1420776357181.png").click()
-    updateTimerstamp('_lastInteraction') 
-    sleep(2)
-    cocWindow.find("1420240870546.png").click()
-    updateTimestamp('_lastInteraction')
-    sleep(2)
+    try:
+        #cocWindow.find("1420776357181.png").click()
+        #updateTimestamp('_lastInteraction')
+        #sleep(2)
+        #cocWindow.find("1420240870546.png").click()
+        #updateTimestamp('_lastInteraction')
+        #sleep(2)
+
+        if _openSidebar() == True:
+            sleep(5)
+            
+            if _closeSidebar() == True:
+                return True
+    
+    except:
+        print "[!] Error trying to prevent idle"
 
 
 
@@ -723,20 +726,21 @@ def timeToTrainArmy():
 
 
 
-
 # Main "game loop"
 if (startClashOfClans() == True):
     print "Clash of Clans has started and is ready to go!"
     
     while (True):
         # Make sure we weren't kicked for being idle
-        print "[+] Checking for idle modal"
-        checkIdle()
+#        print "[+] Idle Check"
+#        checkIdle()
         
-        # Collect resources every 10 minutes
-        if ((timestamps['collectResources'] == False) or (secondsSinceLast(timestamps['collectResources']) > 600)):
-            print "[+] Time to collect resources"
-            collectResources()
+#        # Collect resources every 10 minutes
+#        if ((timestamps['collectResources'] == False) or (secondsSinceLast(timestamps['collectResources']) > 600)):
+#            print "[+] Time to collect resources"
+#            collectResources()
+#        else:
+#            print "[INFO] Time since last collected resources: ", secondsSinceLast(timestamps['collectResources']), "/ 600"
     
 #        # Donate troops every 5 minutes
 #        if ((timestamps['donateTroops'] == False) or (secondsSinceLast(timestamps['donateTroops']) > 300)):
@@ -745,17 +749,58 @@ if (startClashOfClans() == True):
     
         # Train new troops and attack after the last trainTroops() finishes
         if ((timestamps['trainTroops'] == False) or (secondsSinceLast(timestamps['trainTroops']) > timeToTrainArmy())):
+            print "+-------------------------------------------------------+"
+            print "|                                                       |"
+            print "|                       WARNING                         |"
+            print "|                                                       |"
+            print "+-------------------------------------------------------+"
+            print ""
+            
+            sleep(2)
+            
+            print "+-------------------------------------------------------+"
+            print "|                                                       |"
+            print "|                       WARNING                         |"
+            print "|                                                       |"
+            print "+-------------------------------------------------------+"
+            print ""
+            
+            sleep(2)
+            
+            print "+-------------------------------------------------------+"
+            print "|                                                       |"
+            print "|                       WARNING                         |"
+            print "|                                                       |"
+            print "+-------------------------------------------------------+"
+            print ""
+
+            startAndFocusApp()
+            
+            sleep(10)
+            
+            print "[+] Idle Check"
+            checkIdle()
+
+            sleep(5)
+            
             print "[+] Time to train troops and attack"
             trainTroops(myArmy)
             attack()
+        else:
+            print "[INFO] Time since troops were trained: ", secondsSinceLast(timestamps['trainTroops']), "/", timeToTrainArmy()
     
-        # Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
-        if ((timestamps['_lastInteraction'] == False) or (secondsSinceLast(timestamps['_lastInteraction']) > 30)):
-            print "[+] Interacting with the screen to prevent getting kicked for too much idle time"
-            preventIdle()
+#        # Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
+#        if ((timestamps['_lastInteraction'] == False) or (secondsSinceLast(timestamps['_lastInteraction']) > 60)):
+#            print "[+] Interacting with the screen to prevent getting kicked for too much idle time"
+#            if preventIdle() == False:
+#                print "Something went wrong, aborting in case Sidebar didn't close."
+#                break
+#        else:
+#            print "[INFO] Time since last interaction: ", secondsSinceLast(timestamps['_lastInteraction'])
     
-        # Sleep 10 seconds before running the loop again
-        sleep(10)
+        # Sleep 20 seconds before running the loop again
+        sleep(60)
+
 
 # collectResources()
 # donateTroops()
