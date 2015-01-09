@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import *
 from math import *
 from random import *
 
@@ -9,8 +9,9 @@ from random import *
 cocWindow = App("Bluestacks").window(0)
 
 timestamps = {
+    'testing':              False,
     'start':                False,
-    'buildTroops':          False,
+    'trainTroops':          False,
     'clearObstacles':       False,
     'collectResources':     False,
     'collectStats':         False,
@@ -31,10 +32,23 @@ myArmy = {
     'pekka':        0
 }
 
+trainTimes = {
+    'barbarian':     20,
+    'archer':        25,
+    'giant':         120,
+    'goblin':        30,
+    'wallbreaker':   120,
+    'balloon':       480,
+    'wizard':        480,
+    'healer':        900,
+    'dragon':        1800,
+    'pekka':         2700
+}
+
 # TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
-minGoldToAttack = 30000
-minElixirToAttack = 75000
-# minDeToAttack = 0
+minGoldToAttack = 80000
+minElixirToAttack = 10000
+minDeToAttack = 0
 
 
 
@@ -60,12 +74,15 @@ def attack():
 def startAttacking():
     try:
         cocWindow.find("1420258650866.png").click()
+        updateTimestamp('_lastInteraction')
         sleep(1)
         cocWindow.find("1420258681129.png").click()
+        updateTimestamp('_lastInteraction')
         sleep(1)
         
         if (cocWindow.exists("1420258722056.png")):
             cocWindow.find("1420258740243.png").click()
+            updateTimestamp('_lastInteraction')
 
         cocWindow.wait("1420258809432.png", 30)
         return True
@@ -77,6 +94,7 @@ def startAttacking():
 
 def nextOpponent():
     cocWindow.find("1420259749784.png").click()
+    updateTimestamp('_lastInteraction')
     sleep(3)
     cocWindow.wait("1420258809432.png", 30)
     sleep(3)
@@ -90,24 +108,24 @@ def isGoodOpponent():
     try:
         goldRegion        = Region((cocWindow.x + 67), (cocWindow.y + 112), 135, 28)
         elixirRegion      = Region((cocWindow.x + 64), (cocWindow.y + 149), 135, 28)
-        # deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
+        deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
     
         gold = numberOCR(goldRegion, 'opponentLoot')
         elixir = numberOCR(elixirRegion, 'opponentLoot')
-        # de = numberOCR(deRegion, 'opponentLoot')
+        de = numberOCR(deRegion, 'opponentLoot')
     
         print "Gold: ", gold
         print "Elixir: ", elixir
-        # print "Dark Elixir: ", de
+        print "Dark Elixir: ", de
 
         if gold >= minGoldToAttack:
             if elixir >= minElixirToAttack:
-                #if de >= minDeToAttack:
-                return True
+                if de >= minDeToAttack:
+                    return True
 
         return False
     except:
-        print "Something went wrong :("
+        print "isGoodOpponent() Something went wrong :("
         print sys.exc_info()[0]
         print sys.exc_info()[1]
         return False
@@ -128,16 +146,17 @@ def deployTroops():
         Settings.DelayBeforeDrop = 0.1
         Settings.MoveMouseDelay = 0.2
         dragDrop(landmark.getCenter(), Location(cocWindow.x + 68, cocWindow.y + 462))
+        updateTimestamp('_lastInteraction')
         Settings.DelayAfterDrag = 0.3
         Settings.DelayAfterDrop = 0.3
         Settings.MoveMouseDelay = 0.5
 
         landmark = cocWindow.find("attack_landmark2.png")
-        landmark.highlight(1)
         
     except:
         print "[!] Could not find attack landmark. Aborting attack."
         cocWindow.find("1420258809432.png").click()
+        updateTimestamp('_lastInteraction')
         return False
         
     deployPoints = []
@@ -263,7 +282,8 @@ def deployTroops():
         troops_clancastle.click()
         cocWindow.click(deployPoints[randint(0, right_upper)])
 
-    print "[+] Troops deployed"
+    print "[+] Troops have all been deployed"
+    updateTimestamp('_lastInteraction')
 
     Settings.MoveMouseDelay = 0.5
     
@@ -276,6 +296,7 @@ def finishBattleAndGoHome():
     #       and record them for later analysis and review
     cocWindow.wait("1420266239930.png", FOREVER)
     cocWindow.getLastMatch().click()
+    updateTimestamp('_lastInteraction')
     
     return True
 
@@ -287,7 +308,7 @@ def trainTroops(troops):
     # -- 45 Barbs, 45 Archers, 3/2 Wallbreakers
     #
     # - Set timer for 24 minutes to begin next attack
-    print "[+] Training troops"
+    print "[+] Training new troops"
     
     village = Region((cocWindow.x + 210), (cocWindow.y + 85), 1025, 790)
 
@@ -355,7 +376,9 @@ def trainTroops(troops):
 
     try:
         village.find(Pattern("1420482460039.png").similar(0.90)).click()
+        updateTimestamp('_lastInteraction')
         cocWindow.find("1420240132902.png").click()
+        updateTimestamp('_lastInteraction')
         sleep(0.5)
 
         for i in range(0, 4):
@@ -388,13 +411,20 @@ def trainTroops(troops):
                     
                     for n in range(0, qty):
                         target.click()
+
+                    updateTimestamp('_lastInteraction')
                     
                     Settings.MoveMouseDelay = 0.5
     
             village.find("1420308052116.png").click()
+            updateTimestamp('_lastInteraction')
             sleep(0.5)
             
         village.find("1420240870546.png").click()
+        
+        updateTimestamp('_lastInteraction')
+        updateTimestamp('trainTroops')
+        
         sleep(0.5)
         
     except:
@@ -418,6 +448,7 @@ def donateTroops():
     try:
         for donate in cocWindow.findAll(Pattern("1420237685511.png").similar(0.80)):
             donate.click()
+            updateTimestamp('_lastInteraction')
             sleep(1)
             donateDialog = Region((donate.x + 88), (donate.y - 175), 765, 435)
             Settings.MoveMouseDelay = 0
@@ -426,19 +457,21 @@ def donateTroops():
                 donateDialog.getLastMatch().click()
                 donations += 1
                 updateTimestamp('_lastInteraction')
-                sleep(0.25)
+                sleep(0.5)
                 
             Settings.MoveMouseDelay = 0.5
 
             print "Donated ", donations, " archers"
     except:
-        print "[!] Error donating troops"
-        print sys.exc_info()[0]
-        print sys.exc_info()[1]
+        print "[-] Nobody has asked for donations. Moving on."
+        # print sys.exc_info()[0]
+        # print sys.exc_info()[1]
     
     _closeSidebar()
     updateTimestamp('donateTroops')
-    trainTroops({ 'archer': donations })
+    
+    if (donations > 0):
+        trainTroops({ 'archer': donations })
     
     return
     
@@ -448,7 +481,7 @@ def donateTroops():
 def _openSidebar():
     try:
         if cocWindow.exists("1420308399291.png",0):
-            click(cocWindow.getLastMatch())
+            cocWindow.getLastMatch().click()
             sleep(1)
             return True
         else:
@@ -463,8 +496,9 @@ def _openSidebar():
 def _closeSidebar():
     try:
         if cocWindow.exists("1420238603713.png", 0):
-            click(cocWindow.getLastMatch())
-            sleep(1)
+            cocWindow.getLastMatch().click()
+            updateTimestamp('_lastInteraction')
+            sleep(2)
             return True
         else:
             print "Sidebar closer doesn't exist"
@@ -479,29 +513,33 @@ def collectResources():
     resources = ["1420235690079.png", "1420231189687.png" ,Pattern("1420230934586.png").similar(0.80)]
 
     window = Region((cocWindow.x + 210), (cocWindow.y + 85), 1025, 790)
-    # window.highlight(1)
+    
     for resource in resources:
         try:
             for _temp in window.findAll(resource):
                 _temp.click()
                 updateTimestamp('_lastInteraction')
-                updateTimestamp('collectResources')
         except:
             print "[!] There was an error collecting resources"
+    
+    updateTimestamp('collectResources')
 
     return
 
 
 
+# TODO
 def removeObstacles():
     # Routine to find and remove obstacles
     pass
 
 
 
+# TODO
 def observeVillageStats():
     # Routine to collect/OCR village stats
     # And return them in an array/dictionary...
+    # Or maybe right them to a file?
     pass
 
 
@@ -513,8 +551,9 @@ def observeVillageStats():
 # Returns: True if succeeded, False if anything failed
 def startClashOfClans():
     startAndFocusApp()
-    waitVanish("1420181477444.png", 60)
+    waitVanish("1420181477444.png", FOREVER)
     sleep(3)
+    
     cocWindow = App("Bluestacks").window(0)
     recentApps = Region((cocWindow.x + 8), (cocWindow.y + 110), 1430, 150)
     
@@ -528,9 +567,10 @@ def startClashOfClans():
         # Test for recent enemy raid dialog
         if cocWindow.exists("1420255908709.png"):
             cocWindow.getLastMatch().click()
-            sleep(0.5)
-        
-        sleep(1)
+            updateTimestamp('_lastInteraction')
+            sleep(1)
+        else:
+            sleep(3)
         
         zoomOutAndCenter()
     except:
@@ -597,13 +637,14 @@ def startAndFocusApp():
 # Checks to see if we've been kicked for being idle
 # If so, it will reload the game and reset the village
 # so we can pick up where we left off.
+# TODO: Check for recent attack dialog when we return to from idle
 def checkIdle():
     if (cocWindow.exists("1420184045669.png", 0)):
         cocWindow.find("1420184095574.png").click()
-        updateTimestamp('_lastInteraction')
-        # TODO: Replace this with better logic
-        #       i.e. wait([SHOP ICON], FOREVER) or something similar
-        sleep(60)
+        
+        cocWindow.wait("1420182438717.png", 60)
+        cocWindow.waitVanish("1420182438717.png", FOREVER)
+        
         zoomOutAndCenter()
 
         return True
@@ -612,10 +653,17 @@ def checkIdle():
 
 
 
-def testOcr():
-    switchApp("C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe")
-    sleep(1)
+def preventIdle():
+    cocWindow.find("1420776357181.png").click()
+    updateTimerstamp('_lastInteraction') 
+    sleep(2)
+    cocWindow.find("1420240870546.png").click()
+    updateTimestamp('_lastInteraction')
+    sleep(2)
 
+
+
+def testOcr():
     try:
         goldRegion = selectRegion("Select Loot")
         gold = numberOCR(goldRegion, 'opponentLoot')
@@ -631,10 +679,6 @@ def testOcr():
 
 
 
-##### Helper Functions
-# OCR for numbers
-# - Currently calibrated for Gold/Elixir/DE/Gems of your villiage
-# - TODO: Calibrate for opponents loot when attacking
 def numberOCR(Reg, ocrType):
     if ocrType == 'opponentLoot':
         numberImages = [Pattern("oppLoot_0.png").exact(),Pattern("oppLoot_1.png").exact(),Pattern("oppLoot_2.png").exact(),Pattern("oppLoot_3.png").similar(0.95),Pattern("oppLoot_4.png").similar(0.95),Pattern("oppLoot_5.png").exact(),Pattern("oppLoot_6.png").exact(),Pattern("oppLoot_7.png").similar(0.95),Pattern("oppLoot_8.png").exact(),Pattern("oppLoot_9.png").exact()]
@@ -665,24 +709,55 @@ def numberOCR(Reg, ocrType):
         ret += 10 **(listLen - x - 1) * i[1]
     return ret
 
-#if (startClashOfClans() == True):
-    # Initiate a while loop here that plays the game for us using
-    # the methods defined above...
-#    print "COC has started and is ready to go!"
 
-#loop = 10
-#for i in range(0, loop):
-    # TODO: Make each step/function contingent on the last time the function
-    #       was run (timestamp) tracked via updateTimestamp()
-#    checkIdle()
-#    collectResources()
-#    donateTroops()
-#    sleep(120)
-    # trainTroops(myArmy)
+
+def secondsSinceLast(ts):
+    diff = datetime.now() - ts;
+
+    return diff.seconds
+
+
+
+def timeToTrainArmy():
+    return 1455
+
+
+
+
+# Main "game loop"
+if (startClashOfClans() == True):
+    print "Clash of Clans has started and is ready to go!"
+    
+    while (True):
+        # Make sure we weren't kicked for being idle
+        print "[+] Checking for idle modal"
+        checkIdle()
+        
+        # Collect resources every 10 minutes
+        if ((timestamps['collectResources'] == False) or (secondsSinceLast(timestamps['collectResources']) > 600)):
+            print "[+] Time to collect resources"
+            collectResources()
+    
+#        # Donate troops every 5 minutes
+#        if ((timestamps['donateTroops'] == False) or (secondsSinceLast(timestamps['donateTroops']) > 300)):
+#            print "[+] Time to donate troops"
+#            donateTroops()
+    
+        # Train new troops and attack after the last trainTroops() finishes
+        if ((timestamps['trainTroops'] == False) or (secondsSinceLast(timestamps['trainTroops']) > timeToTrainArmy())):
+            print "[+] Time to train troops and attack"
+            trainTroops(myArmy)
+            attack()
+    
+        # Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
+        if ((timestamps['_lastInteraction'] == False) or (secondsSinceLast(timestamps['_lastInteraction']) > 30)):
+            print "[+] Interacting with the screen to prevent getting kicked for too much idle time"
+            preventIdle()
+    
+        # Sleep 10 seconds before running the loop again
+        sleep(10)
 
 # collectResources()
 # donateTroops()
-trainTroops(myArmy)
+# trainTroops(myArmy)
 # attack()
-# deployTroops()
-# finishBattleAndGoHome()

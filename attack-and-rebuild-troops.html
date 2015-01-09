@@ -70,7 +70,7 @@
 <h2>attack-and-rebuild-troops.sikuli\attack-and-rebuild-troops.sikuli</h2> <a href="attack-and-rebuild-troops.sikuli\attack-and-rebuild-troops.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
-<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> datetime <span class="kw">import</span> *
 <span class="kw">from</span> math <span class="kw">import</span> *
 <span class="kw">from</span> random <span class="kw">import</span> *
 
@@ -81,8 +81,9 @@
 </span>cocWindow = App(<span class="str">"Bluestacks"</span>).window(<span class="dig">0</span>)
 
 timestamps = {
+    <span class="str">'testing'</span>:              False,
     <span class="str">'start'</span>:                False,
-    <span class="str">'buildTroops'</span>:          False,
+    <span class="str">'trainTroops'</span>:          False,
     <span class="str">'clearObstacles'</span>:       False,
     <span class="str">'collectResources'</span>:     False,
     <span class="str">'collectStats'</span>:         False,
@@ -103,11 +104,24 @@ myArmy = {
     <span class="str">'pekka'</span>:        <span class="dig">0</span>
 }
 
+trainTimes = {
+    <span class="str">'barbarian'</span>:     <span class="dig">20</span>,
+    <span class="str">'archer'</span>:        <span class="dig">25</span>,
+    <span class="str">'giant'</span>:         <span class="dig">120</span>,
+    <span class="str">'goblin'</span>:        <span class="dig">30</span>,
+    <span class="str">'wallbreaker'</span>:   <span class="dig">120</span>,
+    <span class="str">'balloon'</span>:       <span class="dig">480</span>,
+    <span class="str">'wizard'</span>:        <span class="dig">480</span>,
+    <span class="str">'healer'</span>:        <span class="dig">900</span>,
+    <span class="str">'dragon'</span>:        <span class="dig">1800</span>,
+    <span class="str">'pekka'</span>:         <span class="dig">2700</span>
+}
+
 <span class="cmt"># TODO: Fix OCR (Make DE conditional on whether they are high enough to have DE)
-</span>minGoldToAttack = <span class="dig">30000</span>
-minElixirToAttack = <span class="dig">75000</span>
-<span class="cmt"># minDeToAttack = 0
-</span>
+</span>minGoldToAttack = <span class="dig">80000</span>
+minElixirToAttack = <span class="dig">10000</span>
+minDeToAttack = <span class="dig">0</span>
+
 
 
 <span class="kw">def</span> attack():
@@ -132,12 +146,15 @@ minElixirToAttack = <span class="dig">75000</span>
 <span class="kw">def</span> startAttacking():
     <span class="kw">try</span>:
         cocWindow.<span class="skw">find</span>(<img src="1420258650866.png" />).<span class="skw">click</span>()
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         <span class="skw">sleep</span>(<span class="dig">1</span>)
         cocWindow.<span class="skw">find</span>(<img src="1420258681129.png" />).<span class="skw">click</span>()
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         <span class="skw">sleep</span>(<span class="dig">1</span>)
 
         <span class="kw">if</span> (cocWindow.exists(<img src="1420258722056.png" />)):
             cocWindow.<span class="skw">find</span>(<img src="1420258740243.png" />).<span class="skw">click</span>()
+            updateTimestamp(<span class="str">'_lastInteraction'</span>)
 
         cocWindow.<span class="skw">wait</span>(<img src="1420258809432.png" />, <span class="dig">30</span>)
         <span class="kw">return</span> True
@@ -149,6 +166,7 @@ minElixirToAttack = <span class="dig">75000</span>
 
 <span class="kw">def</span> nextOpponent():
     cocWindow.<span class="skw">find</span>(<img src="1420259749784.png" />).<span class="skw">click</span>()
+    updateTimestamp(<span class="str">'_lastInteraction'</span>)
     <span class="skw">sleep</span>(<span class="dig">3</span>)
     cocWindow.<span class="skw">wait</span>(<img src="1420258809432.png" />, <span class="dig">30</span>)
     <span class="skw">sleep</span>(<span class="dig">3</span>)
@@ -162,24 +180,24 @@ minElixirToAttack = <span class="dig">75000</span>
 </span>    <span class="kw">try</span>:
         goldRegion        = Region((cocWindow.x + <span class="dig">67</span>), (cocWindow.y + <span class="dig">112</span>), <span class="dig">135</span>, <span class="dig">28</span>)
         elixirRegion      = Region((cocWindow.x + <span class="dig">64</span>), (cocWindow.y + <span class="dig">149</span>), <span class="dig">135</span>, <span class="dig">28</span>)
-        <span class="cmt"># deRegion          = Region((cocWindow.x + 64), (cocWindow.y + 188), 125, 28)
-</span>
+        deRegion          = Region((cocWindow.x + <span class="dig">64</span>), (cocWindow.y + <span class="dig">188</span>), <span class="dig">125</span>, <span class="dig">28</span>)
+
         gold = numberOCR(goldRegion, <span class="str">'opponentLoot'</span>)
         elixir = numberOCR(elixirRegion, <span class="str">'opponentLoot'</span>)
-        <span class="cmt"># de = numberOCR(deRegion, 'opponentLoot')
-</span>
+        de = numberOCR(deRegion, <span class="str">'opponentLoot'</span>)
+
         <span class="kw">print</span> <span class="str">"Gold: "</span>, gold
         <span class="kw">print</span> <span class="str">"Elixir: "</span>, elixir
-        <span class="cmt"># print "Dark Elixir: ", de
-</span>
+        <span class="kw">print</span> <span class="str">"Dark Elixir: "</span>, de
+
         <span class="kw">if</span> gold &gt;= minGoldToAttack:
             <span class="kw">if</span> elixir &gt;= minElixirToAttack:
-                <span class="cmt">#if de &gt;= minDeToAttack:
-</span>                <span class="kw">return</span> True
+                <span class="kw">if</span> de &gt;= minDeToAttack:
+                    <span class="kw">return</span> True
 
         <span class="kw">return</span> False
     <span class="kw">except</span>:
-        <span class="kw">print</span> <span class="str">"Something went wrong :("</span>
+        <span class="kw">print</span> <span class="str">"isGoodOpponent() Something went wrong :("</span>
         <span class="kw">print</span> sys.exc_info()[<span class="dig">0</span>]
         <span class="kw">print</span> sys.exc_info()[<span class="dig">1</span>]
         <span class="kw">return</span> False
@@ -200,16 +218,17 @@ minElixirToAttack = <span class="dig">75000</span>
         Settings.DelayBeforeDrop = <span class="dig">0.1</span>
         Settings.MoveMouseDelay = <span class="dig">0.2</span>
         <span class="skw">dragDrop</span>(landmark.getCenter(), Location(cocWindow.x + <span class="dig">68</span>, cocWindow.y + <span class="dig">462</span>))
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         Settings.DelayAfterDrag = <span class="dig">0.3</span>
         Settings.DelayAfterDrop = <span class="dig">0.3</span>
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
         landmark = cocWindow.<span class="skw">find</span>(<img src="attack_landmark2.png" />)
-        landmark.highlight(<span class="dig">1</span>)
 
     <span class="kw">except</span>:
         <span class="kw">print</span> <span class="str">"[!] Could not find attack landmark. Aborting attack."</span>
         cocWindow.<span class="skw">find</span>(<img src="1420258809432.png" />).<span class="skw">click</span>()
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         <span class="kw">return</span> False
 
     deployPoints = []
@@ -335,7 +354,8 @@ minElixirToAttack = <span class="dig">75000</span>
         troops_clancastle.<span class="skw">click</span>()
         cocWindow.<span class="skw">click</span>(deployPoints[randint(<span class="dig">0</span>, right_upper)])
 
-    <span class="kw">print</span> <span class="str">"[+] Troops deployed"</span>
+    <span class="kw">print</span> <span class="str">"[+] Troops have all been deployed"</span>
+    updateTimestamp(<span class="str">'_lastInteraction'</span>)
 
     Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
@@ -348,6 +368,7 @@ minElixirToAttack = <span class="dig">75000</span>
 </span>    <span class="cmt">#       and record them for later analysis and review
 </span>    cocWindow.<span class="skw">wait</span>(<img src="1420266239930.png" />, FOREVER)
     cocWindow.getLastMatch().<span class="skw">click</span>()
+    updateTimestamp(<span class="str">'_lastInteraction'</span>)
 
     <span class="kw">return</span> True
 
@@ -359,7 +380,7 @@ minElixirToAttack = <span class="dig">75000</span>
 </span>    <span class="cmt"># -- 45 Barbs, 45 Archers, 3/2 Wallbreakers
 </span>    <span class="cmt">#
 </span>    <span class="cmt"># - Set timer for 24 minutes to begin next attack
-</span>    <span class="kw">print</span> <span class="str">"[+] Training troops"</span>
+</span>    <span class="kw">print</span> <span class="str">"[+] Training new troops"</span>
 
     village = Region((cocWindow.x + <span class="dig">210</span>), (cocWindow.y + <span class="dig">85</span>), <span class="dig">1025</span>, <span class="dig">790</span>)
 
@@ -427,7 +448,9 @@ minElixirToAttack = <span class="dig">75000</span>
 
     <span class="kw">try</span>:
         village.<span class="skw">find</span>(Pattern(<img src="1420482460039.png" />).similar(<span class="dig">0.90</span>)).<span class="skw">click</span>()
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         cocWindow.<span class="skw">find</span>(<img src="1420240132902.png" />).<span class="skw">click</span>()
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
         <span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">4</span>):
@@ -461,12 +484,19 @@ minElixirToAttack = <span class="dig">75000</span>
                     <span class="kw">for</span> n <span class="kw">in</span> range(<span class="dig">0</span>, qty):
                         target.<span class="skw">click</span>()
 
+                    updateTimestamp(<span class="str">'_lastInteraction'</span>)
+
                     Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
             village.<span class="skw">find</span>(<img src="1420308052116.png" />).<span class="skw">click</span>()
+            updateTimestamp(<span class="str">'_lastInteraction'</span>)
             <span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
         village.<span class="skw">find</span>(<img src="1420240870546.png" />).<span class="skw">click</span>()
+
+        updateTimestamp(<span class="str">'_lastInteraction'</span>)
+        updateTimestamp(<span class="str">'trainTroops'</span>)
+
         <span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
     <span class="kw">except</span>:
@@ -490,6 +520,7 @@ minElixirToAttack = <span class="dig">75000</span>
     <span class="kw">try</span>:
         <span class="kw">for</span> donate <span class="kw">in</span> cocWindow.findAll(Pattern(<img src="1420237685511.png" />).similar(<span class="dig">0.80</span>)):
             donate.<span class="skw">click</span>()
+            updateTimestamp(<span class="str">'_lastInteraction'</span>)
             <span class="skw">sleep</span>(<span class="dig">1</span>)
             donateDialog = Region((donate.x + <span class="dig">88</span>), (donate.y - <span class="dig">175</span>), <span class="dig">765</span>, <span class="dig">435</span>)
             Settings.MoveMouseDelay = <span class="dig">0</span>
@@ -498,19 +529,21 @@ minElixirToAttack = <span class="dig">75000</span>
                 donateDialog.getLastMatch().<span class="skw">click</span>()
                 donations += <span class="dig">1</span>
                 updateTimestamp(<span class="str">'_lastInteraction'</span>)
-                <span class="skw">sleep</span>(<span class="dig">0.25</span>)
+                <span class="skw">sleep</span>(<span class="dig">0.5</span>)
 
             Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
             <span class="kw">print</span> <span class="str">"Donated "</span>, donations, <span class="str">" archers"</span>
     <span class="kw">except</span>:
-        <span class="kw">print</span> <span class="str">"[!] Error donating troops"</span>
-        <span class="kw">print</span> sys.exc_info()[<span class="dig">0</span>]
-        <span class="kw">print</span> sys.exc_info()[<span class="dig">1</span>]
-
+        <span class="kw">print</span> <span class="str">"[-] Nobody has asked for donations. Moving on."</span>
+        <span class="cmt"># print sys.exc_info()[0]
+</span>        <span class="cmt"># print sys.exc_info()[1]
+</span>
     _closeSidebar()
     updateTimestamp(<span class="str">'donateTroops'</span>)
-    trainTroops({ <span class="str">'archer'</span>: donations })
+
+    <span class="kw">if</span> (donations &gt; <span class="dig">0</span>):
+        trainTroops({ <span class="str">'archer'</span>: donations })
 
     <span class="kw">return</span>
 
@@ -520,7 +553,7 @@ minElixirToAttack = <span class="dig">75000</span>
 <span class="kw">def</span> _openSidebar():
     <span class="kw">try</span>:
         <span class="kw">if</span> cocWindow.exists(<img src="1420308399291.png" />,<span class="dig">0</span>):
-            <span class="skw">click</span>(cocWindow.getLastMatch())
+            cocWindow.getLastMatch().<span class="skw">click</span>()
             <span class="skw">sleep</span>(<span class="dig">1</span>)
             <span class="kw">return</span> True
         <span class="kw">else</span>:
@@ -535,8 +568,9 @@ minElixirToAttack = <span class="dig">75000</span>
 <span class="kw">def</span> _closeSidebar():
     <span class="kw">try</span>:
         <span class="kw">if</span> cocWindow.exists(<img src="1420238603713.png" />, <span class="dig">0</span>):
-            <span class="skw">click</span>(cocWindow.getLastMatch())
-            <span class="skw">sleep</span>(<span class="dig">1</span>)
+            cocWindow.getLastMatch().<span class="skw">click</span>()
+            updateTimestamp(<span class="str">'_lastInteraction'</span>)
+            <span class="skw">sleep</span>(<span class="dig">2</span>)
             <span class="kw">return</span> True
         <span class="kw">else</span>:
             <span class="kw">print</span> <span class="str">"Sidebar closer doesn't exist"</span>
@@ -551,29 +585,33 @@ minElixirToAttack = <span class="dig">75000</span>
     resources = [<img src="1420235690079.png" />, <img src="1420231189687.png" /> ,Pattern(<img src="1420230934586.png" />).similar(<span class="dig">0.80</span>)]
 
     window = Region((cocWindow.x + <span class="dig">210</span>), (cocWindow.y + <span class="dig">85</span>), <span class="dig">1025</span>, <span class="dig">790</span>)
-    <span class="cmt"># window.highlight(1)
-</span>    <span class="kw">for</span> resource <span class="kw">in</span> resources:
+
+    <span class="kw">for</span> resource <span class="kw">in</span> resources:
         <span class="kw">try</span>:
             <span class="kw">for</span> _temp <span class="kw">in</span> window.findAll(resource):
                 _temp.<span class="skw">click</span>()
                 updateTimestamp(<span class="str">'_lastInteraction'</span>)
-                updateTimestamp(<span class="str">'collectResources'</span>)
         <span class="kw">except</span>:
             <span class="kw">print</span> <span class="str">"[!] There was an error collecting resources"</span>
+
+    updateTimestamp(<span class="str">'collectResources'</span>)
 
     <span class="kw">return</span>
 
 
 
-<span class="kw">def</span> removeObstacles():
+<span class="cmt"># TODO
+</span><span class="kw">def</span> removeObstacles():
     <span class="cmt"># Routine to find and remove obstacles
 </span>    <span class="kw">pass</span>
 
 
 
-<span class="kw">def</span> observeVillageStats():
+<span class="cmt"># TODO
+</span><span class="kw">def</span> observeVillageStats():
     <span class="cmt"># Routine to collect/OCR village stats
 </span>    <span class="cmt"># And return them in an array/dictionary...
+</span>    <span class="cmt"># Or maybe right them to a file?
 </span>    <span class="kw">pass</span>
 
 
@@ -585,8 +623,9 @@ minElixirToAttack = <span class="dig">75000</span>
 </span><span class="cmt"># Returns: True if succeeded, False if anything failed
 </span><span class="kw">def</span> startClashOfClans():
     startAndFocusApp()
-    waitVanish(<img src="1420181477444.png" />, <span class="dig">60</span>)
+    waitVanish(<img src="1420181477444.png" />, FOREVER)
     <span class="skw">sleep</span>(<span class="dig">3</span>)
+
     cocWindow = App(<span class="str">"Bluestacks"</span>).window(<span class="dig">0</span>)
     recentApps = Region((cocWindow.x + <span class="dig">8</span>), (cocWindow.y + <span class="dig">110</span>), <span class="dig">1430</span>, <span class="dig">150</span>)
 
@@ -600,9 +639,10 @@ minElixirToAttack = <span class="dig">75000</span>
         <span class="cmt"># Test for recent enemy raid dialog
 </span>        <span class="kw">if</span> cocWindow.exists(<img src="1420255908709.png" />):
             cocWindow.getLastMatch().<span class="skw">click</span>()
-            <span class="skw">sleep</span>(<span class="dig">0.5</span>)
-
-        <span class="skw">sleep</span>(<span class="dig">1</span>)
+            updateTimestamp(<span class="str">'_lastInteraction'</span>)
+            <span class="skw">sleep</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            <span class="skw">sleep</span>(<span class="dig">3</span>)
 
         zoomOutAndCenter()
     <span class="kw">except</span>:
@@ -669,13 +709,14 @@ minElixirToAttack = <span class="dig">75000</span>
 <span class="cmt"># Checks to see if we've been kicked for being idle
 </span><span class="cmt"># If so, it will reload the game and reset the village
 </span><span class="cmt"># so we can pick up where we left off.
+</span><span class="cmt"># TODO: Check for recent attack dialog when we return to from idle
 </span><span class="kw">def</span> checkIdle():
     <span class="kw">if</span> (cocWindow.exists(<img src="1420184045669.png" />, <span class="dig">0</span>)):
         cocWindow.<span class="skw">find</span>(<img src="1420184095574.png" />).<span class="skw">click</span>()
-        updateTimestamp(<span class="str">'_lastInteraction'</span>)
-        <span class="cmt"># TODO: Replace this with better logic
-</span>        <span class="cmt">#       i.e. wait([SHOP ICON], FOREVER) or something similar
-</span>        <span class="skw">sleep</span>(<span class="dig">60</span>)
+
+        cocWindow.<span class="skw">wait</span>(<img src="1420182438717.png" />, <span class="dig">60</span>)
+        cocWindow.waitVanish(<img src="1420182438717.png" />, FOREVER)
+
         zoomOutAndCenter()
 
         <span class="kw">return</span> True
@@ -684,10 +725,17 @@ minElixirToAttack = <span class="dig">75000</span>
 
 
 
-<span class="kw">def</span> testOcr():
-    switchApp(<span class="str">"C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe"</span>)
-    <span class="skw">sleep</span>(<span class="dig">1</span>)
+<span class="kw">def</span> preventIdle():
+    cocWindow.<span class="skw">find</span>(<img src="1420776357181.png" />).<span class="skw">click</span>()
+    updateTimerstamp(<span class="str">'_lastInteraction'</span>)
+    <span class="skw">sleep</span>(<span class="dig">2</span>)
+    cocWindow.<span class="skw">find</span>(<img src="1420240870546.png" />).<span class="skw">click</span>()
+    updateTimestamp(<span class="str">'_lastInteraction'</span>)
+    <span class="skw">sleep</span>(<span class="dig">2</span>)
 
+
+
+<span class="kw">def</span> testOcr():
     <span class="kw">try</span>:
         goldRegion = selectRegion(<span class="str">"Select Loot"</span>)
         gold = numberOCR(goldRegion, <span class="str">'opponentLoot'</span>)
@@ -703,11 +751,7 @@ minElixirToAttack = <span class="dig">75000</span>
 
 
 
-<span class="cmt">##### Helper Functions
-</span><span class="cmt"># OCR for numbers
-</span><span class="cmt"># - Currently calibrated for Gold/Elixir/DE/Gems of your villiage
-</span><span class="cmt"># - TODO: Calibrate for opponents loot when attacking
-</span><span class="kw">def</span> numberOCR(Reg, ocrType):
+<span class="kw">def</span> numberOCR(Reg, ocrType):
     <span class="kw">if</span> ocrType == <span class="str">'opponentLoot'</span>:
         numberImages = [Pattern(<img src="oppLoot_0.png" />).exact(),Pattern(<img src="oppLoot_1.png" />).exact(),Pattern(<img src="oppLoot_2.png" />).exact(),Pattern(<img src="oppLoot_3.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="oppLoot_4.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="oppLoot_5.png" />).exact(),Pattern(<img src="oppLoot_6.png" />).exact(),Pattern(<img src="oppLoot_7.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="oppLoot_8.png" />).exact(),Pattern(<img src="oppLoot_9.png" />).exact()]
     <span class="kw">elif</span> ocrType == <span class="str">'myLoot'</span>:
@@ -737,27 +781,58 @@ minElixirToAttack = <span class="dig">75000</span>
         ret += <span class="dig">10</span> **(listLen - x - <span class="dig">1</span>) * i[<span class="dig">1</span>]
     <span class="kw">return</span> ret
 
-<span class="cmt">#if (startClashOfClans() == True):
-</span>    <span class="cmt"># Initiate a while loop here that plays the game for us using
-</span>    <span class="cmt"># the methods defined above...
-</span><span class="cmt">#    print "COC has started and is ready to go!"
+
+
+<span class="kw">def</span> secondsSinceLast(ts):
+    diff = datetime.now() - ts;
+
+    <span class="kw">return</span> diff.seconds
+
+
+
+<span class="kw">def</span> timeToTrainArmy():
+    <span class="kw">return</span> <span class="dig">1455</span>
+
+
+
+
+<span class="cmt"># Main "game loop"
+</span><span class="kw">if</span> (startClashOfClans() == True):
+    <span class="kw">print</span> <span class="str">"Clash of Clans has started and is ready to go!"</span>
+
+    <span class="kw">while</span> (True):
+        <span class="cmt"># Make sure we weren't kicked for being idle
+</span>        <span class="kw">print</span> <span class="str">"[+] Checking for idle modal"</span>
+        checkIdle()
+
+        <span class="cmt"># Collect resources every 10 minutes
+</span>        <span class="kw">if</span> ((timestamps[<span class="str">'collectResources'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'collectResources'</span>]) &gt; <span class="dig">600</span>)):
+            <span class="kw">print</span> <span class="str">"[+] Time to collect resources"</span>
+            collectResources()
+
+<span class="cmt">#        # Donate troops every 5 minutes
+</span><span class="cmt">#        if ((timestamps['donateTroops'] == False) or (secondsSinceLast(timestamps['donateTroops']) &gt; 300)):
+</span><span class="cmt">#            print "[+] Time to donate troops"
+</span><span class="cmt">#            donateTroops()
 </span>
-<span class="cmt">#loop = 10
-</span><span class="cmt">#for i in range(0, loop):
-</span>    <span class="cmt"># TODO: Make each step/function contingent on the last time the function
-</span>    <span class="cmt">#       was run (timestamp) tracked via updateTimestamp()
-</span><span class="cmt">#    checkIdle()
-</span><span class="cmt">#    collectResources()
-</span><span class="cmt">#    donateTroops()
-</span><span class="cmt">#    sleep(120)
-</span>    <span class="cmt"># trainTroops(myArmy)
-</span>
+        <span class="cmt"># Train new troops and attack after the last trainTroops() finishes
+</span>        <span class="kw">if</span> ((timestamps[<span class="str">'trainTroops'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'trainTroops'</span>]) &gt; timeToTrainArmy())):
+            <span class="kw">print</span> <span class="str">"[+] Time to train troops and attack"</span>
+            trainTroops(myArmy)
+            attack()
+
+        <span class="cmt"># Perform an interaction with the game to prevent idling out if 30 seconds has passed with no interaction
+</span>        <span class="kw">if</span> ((timestamps[<span class="str">'_lastInteraction'</span>] == False) <span class="kw">or</span> (secondsSinceLast(timestamps[<span class="str">'_lastInteraction'</span>]) &gt; <span class="dig">30</span>)):
+            <span class="kw">print</span> <span class="str">"[+] Interacting with the screen to prevent getting kicked for too much idle time"</span>
+            preventIdle()
+
+        <span class="cmt"># Sleep 10 seconds before running the loop again
+</span>        <span class="skw">sleep</span>(<span class="dig">10</span>)
+
 <span class="cmt"># collectResources()
 </span><span class="cmt"># donateTroops()
-</span>trainTroops(myArmy)
-<span class="cmt"># attack()
-</span><span class="cmt"># deployTroops()
-</span><span class="cmt"># finishBattleAndGoHome()</span>
+</span><span class="cmt"># trainTroops(myArmy)
+</span><span class="cmt"># attack()</span>
 </pre>
 </body>
 </html>
