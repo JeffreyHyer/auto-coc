@@ -44,9 +44,7 @@ so you can pick up where you left off on your phone/tablet or you'll need to sta
 
 #### This repository
 Download the files in this repository [here](https://github.com/JeffreyHyer/auto-coc/archive/master.zip) and extract
-it wherever you want. Just keep in mind the folder name must end in `.sikuli`, for example `auto-coc.sikuli`
-
-
+it wherever you want. Just keep in mind the folder name must end in `.sikuli`, for example `auto-coc.sikuli`. You'll also need to change the name of the python script from `attack-and-rebuild-troops.py` to the name of the folder, `auto-coc.py`.
 
 ## Usage
 *Option 1* (Using the SikuliX IDE)
